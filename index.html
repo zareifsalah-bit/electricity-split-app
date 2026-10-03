@@ -95,8 +95,9 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     <h1>Electricity Split</h1>
     <div class="lock-copy">Your bill data is encrypted on this device. Enter the app password to unlock the dashboard.</div>
     <div class="lock-row">
-      <input id="unlockPassword" type="password" placeholder="App password" autocomplete="current-password" onkeydown="if(event.key==='Enter') unlockApp()">
+      <input id="unlockPassword" type="password" placeholder="App password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter') unlockApp()">
       <button class="primary" onclick="unlockApp()">Unlock Dashboard</button>
+      <button type="button" onclick="toggleUnlockPassword()" style="margin-top:8px">Show / Hide Password</button>
     </div>
     <div id="lockError" class="lock-error"></div>
   </section>
@@ -235,7 +236,22 @@ let saveChain=Promise.resolve();
 
 const bytesToB64 = bytes => btoa(String.fromCharCode(...bytes));
 const b64ToBytes = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+function canonicalizePassword(value){
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\u2060\uFEFF\u200E\u200F\u061C]/g,'')
+    .replace(/[٠-٩]/g,d=>'0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+    .replace(/[۰-۹]/g,d=>'0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)])
+    .trim();
+}
+function toggleUnlockPassword(){
+  const input=document.getElementById('unlockPassword');
+  input.type=input.type==='password'?'text':'password';
+  input.focus();
+}
+
 async function deriveKey(password,salt){
+  password=canonicalizePassword(password);
   const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:180000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
@@ -258,7 +274,7 @@ function queueEncryptedSave(){
 async function unlockApp(){
   const input=document.getElementById('unlockPassword');
   const error=document.getElementById('lockError');
-  const password=input.value;
+  const password=canonicalizePassword(input.value);
   if(!password){error.textContent='Enter the app password.';return;}
   error.textContent='Unlocking…';
   try{
@@ -288,9 +304,9 @@ function lockApp(){
   document.getElementById('unlockPassword').focus();
 }
 function verifyAdmin(){
-  const candidate=prompt('Enter the app password to modify this saved bill:');
+  const candidate=canonicalizePassword(prompt('Enter the app password to modify this saved bill:'));
   if(candidate===null) return false;
-  if(candidate!==sessionPassword){alert('Incorrect password.');return false;}
+  if(candidate!==canonicalizePassword(sessionPassword)){alert('Incorrect password.');return false;}
   return true;
 }
 
