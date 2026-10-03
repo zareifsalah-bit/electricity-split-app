@@ -113,7 +113,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
       <button onclick="copySummary()">Copy Summary</button>
       <button onclick="exportCSV()">Export CSV</button>
       <button onclick="window.print()">Print</button>
-      <button onclick="lockApp()">Lock</button>
+      <button onclick="lockApp()">Logout</button>
       <button class="primary" onclick="document.getElementById('addBill').scrollIntoView({behavior:'smooth'})">+ Add Bill</button>
     </div>
   </div>
@@ -162,7 +162,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     <div id="addBill" class="card form-card">
       <div class="section-title"><div><h2>Add Another Bill</h2><p>Stored locally in this browser</p></div></div>
       <div class="form-grid">
-        <div class="full"><label>Bill Label</label><input id="label" placeholder="e.g. September 2026"></div>
+        <div class="full"><label>Bill Month</label><input id="label" type="month"></div>
         <div><label>From</label><input id="start" type="date"></div>
         <div><label>To</label><input id="end" type="date"></div>
         <div class="full"><label>Bill Amount (SAR)</label><input id="amount" type="number" step="0.01" placeholder="0.00"></div>
@@ -217,6 +217,23 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
   </section>
 
   <div class="footer">Chrome/PWA dashboard · Bill data is encrypted locally · Attachments stay on this device · App code can update without replacing local data.</div>
+</div>
+
+
+<div id="editBillModal" class="modal" onclick="if(event.target===this) closeEditBillModal()">
+  <div class="modal-box" style="width:min(520px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>Edit Bill</strong><button onclick="closeEditBillModal()">✕</button></div>
+    <div style="padding:16px">
+      <div class="form-grid">
+        <div class="full"><label>Bill Month</label><input id="editBillMonth" type="month"></div>
+        <div><label>From</label><input id="editBillStart" type="date"></div>
+        <div><label>To</label><input id="editBillEnd" type="date"></div>
+        <div class="full"><label>Bill Amount (SAR)</label><input id="editBillAmount" type="number" step="0.01" min="0"></div>
+        <div><button style="width:100%" onclick="closeEditBillModal()">Cancel</button></div>
+        <div><button class="primary" style="width:100%" onclick="saveBillEdit()">Save Changes</button></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="attachmentModal" class="modal" onclick="if(event.target===this) closeAttachmentPreview()">
@@ -303,12 +320,30 @@ function lockApp(){
   document.getElementById('lockScreen').style.display='grid';
   document.getElementById('unlockPassword').focus();
 }
-function verifyAdmin(){
-  const candidate=canonicalizePassword(prompt('Enter the app password to modify this saved bill:'));
-  if(candidate===null) return false;
+function verifyAdmin(action='make this change'){
+  const entered=prompt(`Enter the app password to ${action}:`);
+  if(entered===null) return false;
+  const candidate=canonicalizePassword(entered);
   if(candidate!==canonicalizePassword(sessionPassword)){alert('Incorrect password.');return false;}
   return true;
 }
+
+
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthToLabel(value){
+  if(!/^\d{4}-\d{2}$/.test(value||'')) return '';
+  const [y,m]=value.split('-').map(Number);
+  return `${MONTH_NAMES[m-1]} ${y}`;
+}
+function labelToMonth(label,fallbackDate=''){
+  const m=String(label||'').match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if(m){
+    const idx=MONTH_NAMES.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());
+    if(idx>=0) return `${m[2]}-${String(idx+1).padStart(2,'0')}`;
+  }
+  return /^\d{4}-\d{2}/.test(fallbackDate||'') ? fallbackDate.slice(0,7) : '';
+}
+let pendingEditBillId=null;
 
 const money = n => 'SAR ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const dateFmt = s => new Date(s+'T12:00:00').toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
@@ -432,22 +467,40 @@ function persist() {
 
 
 function editBill(id){
-  if(!verifyAdmin()) return;
+  if(!verifyAdmin('edit this saved bill')) return;
   const b=bills.find(x=>String(x.id)===String(id));
   if(!b) return;
-  const label=prompt('Bill label:',b.label); if(label===null) return;
-  const start=prompt('Billing period start (YYYY-MM-DD):',b.start); if(start===null) return;
-  const end=prompt('Billing period end (YYYY-MM-DD):',b.end); if(end===null) return;
-  const amountText=prompt('Bill amount (SAR):',String(b.amount)); if(amountText===null) return;
-  const amount=Number(amountText);
-  if(!label.trim()||!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||!Number.isFinite(amount)||amount<0){alert('Invalid bill details.');return;}
-  if(end<start){alert('End date cannot be before start date.');return;}
-  Object.assign(b,{label:label.trim(),start,end,amount:Math.round(amount*100)/100});
+  pendingEditBillId=String(id);
+  document.getElementById('editBillMonth').value=labelToMonth(b.label,b.end||b.start);
+  document.getElementById('editBillStart').value=b.start;
+  document.getElementById('editBillEnd').value=b.end;
+  document.getElementById('editBillAmount').value=Number(b.amount).toFixed(2);
+  document.getElementById('editBillModal').classList.add('open');
+}
+function closeEditBillModal(){
+  document.getElementById('editBillModal').classList.remove('open');
+  pendingEditBillId=null;
+}
+function saveBillEdit(){
+  if(!pendingEditBillId) return;
+  const b=bills.find(x=>String(x.id)===String(pendingEditBillId));
+  if(!b) return closeEditBillModal();
+  const month=document.getElementById('editBillMonth').value;
+  const label=monthToLabel(month);
+  const start=document.getElementById('editBillStart').value;
+  const end=document.getElementById('editBillEnd').value;
+  const amount=Number(document.getElementById('editBillAmount').value);
+  if(!label||!start||!end||!Number.isFinite(amount)||amount<0){
+    alert('Please complete all bill fields.'); return;
+  }
+  if(end<start){alert('End date cannot be before start date.'); return;}
+  Object.assign(b,{label,start,end,amount:Math.round(amount*100)/100});
   bills.sort((a,b)=>a.start.localeCompare(b.start));
+  closeEditBillModal();
   persist();
 }
 async function deleteBill(id){
-  if(!verifyAdmin()) return;
+  if(!verifyAdmin('delete this saved bill')) return;
   const b=bills.find(x=>String(x.id)===String(id));
   if(!b) return;
   if(!confirm(`Delete ${b.label}? This cannot be undone.`)) return;
@@ -457,7 +510,8 @@ async function deleteBill(id){
 }
 
 async function addBill() {
-  const label=document.getElementById('label').value.trim();
+  const month=document.getElementById('label').value;
+  const label=monthToLabel(month);
   const start=document.getElementById('start').value, end=document.getElementById('end').value;
   const amount=parseFloat(document.getElementById('amount').value);
   const file=document.getElementById('billAttachment').files[0];
@@ -484,7 +538,12 @@ function addVacation() {
 }
 
 function removeVacation(id) {
-  vacations=vacations.filter(v=>String(v.id)!==String(id)); persist();
+  if(!verifyAdmin('remove this vacation')) return;
+  const v=vacations.find(x=>String(x.id)===String(id));
+  if(!v) return;
+  if(!confirm(`Remove ${v.person} vacation from ${dateFmt(v.start)} to ${dateFmt(v.end)}?`)) return;
+  vacations=vacations.filter(v=>String(v.id)!==String(id));
+  persist();
 }
 
 function savePaid() {
