@@ -203,6 +203,29 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
   @page{size:A4 portrait;margin:10mm 10mm 11mm}
 }
 
+
+
+/* v11 · Stability, integrity, backup & security */
+.status-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+.app-status{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025);font-size:11px;color:var(--muted)}
+.app-status.saved{color:#a7f3d0;border-color:rgba(52,211,153,.25);background:rgba(52,211,153,.07)}
+.app-status.saving{color:#fde68a;border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.07)}
+.app-status.error{color:#fecdd3;border-color:rgba(251,113,133,.28);background:rgba(251,113,133,.08)}
+.integrity-banner,.update-banner{display:none;margin:0 0 14px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);font-size:12px;line-height:1.55}
+.integrity-banner.show{display:block;background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.28);color:#ffe4e6}
+.update-banner.show{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.25);color:#dbeafe}
+.update-banner button{padding:7px 10px}
+.backup-note{font-size:10px;color:var(--muted)}
+.reauth-copy{color:var(--muted);font-size:12px;line-height:1.55;margin-bottom:12px}
+.restore-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.restore-stat{padding:9px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.025)}.restore-stat span{display:block;color:var(--muted);font-size:10px}.restore-stat strong{display:block;margin-top:3px;font-size:15px}
+.audit-mini{font-size:10px;color:var(--muted);margin-top:4px}.audit-table-wrap{overflow:auto;max-height:60vh}.audit-table{min-width:720px}.audit-action{font-weight:800}.audit-detail{color:var(--muted);font-size:11px}
+.footer-version{font-weight:800;color:#c7d2fe}
+.storage-warn{color:#fde68a}
+.report-reconcile{margin-top:8px;padding:8px 10px;border:1px dashed #cfd9e4;border-radius:8px;background:#fbfcfe;color:#536176;font-size:7.3pt;line-height:1.45}
+.report-credit{color:#067647!important}
+.report-payable{color:#b54708!important}
+@media(max-width:700px){.restore-summary{grid-template-columns:1fr}.update-banner.show{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -231,10 +254,22 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
       <button onclick="copySummary()">Copy Summary</button>
       <button onclick="exportCSV()">Export CSV</button>
       <button onclick="openReportModal()">PDF Report</button>
+      <button onclick="exportEncryptedBackup()">Encrypted Backup</button>
+      <button onclick="chooseRestoreBackup()">Restore Backup</button>
+      <button onclick="openAuditLog()">Audit Log</button>
+      <input id="restoreBackupInput" type="file" accept=".esbackup,application/json" hidden onchange="restoreBackupSelected(event)">
       <button onclick="window.print()">Print</button>
       <button onclick="lockApp()">Logout</button>
       <button class="primary" onclick="document.getElementById('addBill').scrollIntoView({behavior:'smooth'})">+ Add Bill</button>
     </div>
+  </div>
+
+  <div id="updateBanner" class="update-banner"><span><strong>New version available.</strong> Update the app now without clearing your data.</span><button class="primary" onclick="applyAppUpdate()">Update Now</button></div>
+  <div id="integrityBanner" class="integrity-banner"></div>
+  <div class="status-strip">
+    <span id="saveStatus" class="app-status saved">Saved ✓</span>
+    <span id="backupStatus" class="app-status">Last backup: Not yet</span>
+    <span id="storageStatus" class="app-status">Storage: checking…</span>
   </div>
 
   <section class="grid kpis">
@@ -314,7 +349,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
         <div><label>From</label><input id="start" type="date"></div>
         <div><label>To</label><input id="end" type="date"></div>
         <div class="full"><label>Bill Amount (SAR)</label><input id="amount" type="number" step="0.01" placeholder="0.00"></div>
-        <div class="full"><label>Bill Attachment (required · PDF/JPG/PNG)</label><input id="billAttachment" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+        <div class="full"><label>Bill Attachment (required · PDF/JPG/PNG · max 15 MB)</label><input id="billAttachment" type="file" accept="application/pdf,image/jpeg,image/png"></div>
         <div class="full"><button class="primary" style="width:100%" onclick="addBill()">Save Bill</button></div>
       </div>
     </div>
@@ -363,7 +398,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
   <section class="card" style="margin-top:16px">
     <div class="section-title">
-      <div><h2>Vacation Calendar</h2><p>Compact by default — open only when you need the full 2025–2026 view</p></div>
+      <div><h2>Vacation Calendar</h2><p>Compact by default — years are generated automatically from your records</p></div>
       <button id="calendarToggle" onclick="toggleCalendar()">Show Calendar</button>
     </div>
     <div id="calendarSummary" class="calendar-summary"></div>
@@ -382,7 +417,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
     </div>
   </section>
 
-  <div class="footer">Chrome/PWA dashboard · Bills and payments are encrypted locally · Attachments stay on this device · Saved financial records are password-protected.</div>
+  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11</span></div>
 </div>
 
 
@@ -394,7 +429,9 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
         <div class="full"><label>Bill Month</label><input id="editBillMonth" type="month"></div>
         <div><label>From</label><input id="editBillStart" type="date"></div>
         <div><label>To</label><input id="editBillEnd" type="date"></div>
-        <div class="full"><label>Bill Amount (SAR)</label><input id="editBillAmount" type="number" step="0.01" min="0"></div>
+        <div class="full"><label>Bill Amount (SAR)</label><input id="editBillAmount" type="number" step="0.01" min="0.01"></div>
+        <div class="full"><label>Replace Attachment (optional · PDF/JPG/PNG · max 15 MB)</label><input id="editBillAttachment" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+        <div class="full info">Changing an older bill can recalculate FIFO allocation and historical balances.</div>
         <div><button style="width:100%" onclick="closeEditBillModal()">Cancel</button></div>
         <div><button class="primary" style="width:100%" onclick="saveBillEdit()">Save Changes</button></div>
       </div>
@@ -428,12 +465,45 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
         <div><label>To Month</label><input id="reportToMonth" type="month"></div>
         <div class="full"><button class="primary" style="width:100%" onclick="generatePDFReport()">Generate PDF Report</button></div>
       </div>
-      <div class="report-range-hint">Choose the first and last bill month. The report recalculates payment allocation from the oldest recorded bill first, then shows the current settlement status for the selected months.</div>
+      <div class="report-range-hint">Choose the first and last bill month. FIFO is recalculated from the oldest recorded bill first. The report shows selected-month bill status plus an explicitly labeled all-time settlement position. For the cleanest PDF, disable browser headers and footers in the print dialog. Saved PDF reports are not encrypted.</div>
     </div>
   </div>
 </div>
 
 <div id="reportPrintArea" aria-hidden="true"></div>
+
+<div id="reauthModal" class="modal" onclick="if(event.target===this) cancelReauth()">
+  <div class="modal-box" style="width:min(460px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong id="reauthTitle">Verify Password</strong><button onclick="cancelReauth()">✕</button></div>
+    <div style="padding:16px">
+      <div id="reauthCopy" class="reauth-copy">Enter the app password to continue.</div>
+      <input id="reauthPassword" type="password" placeholder="App password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter') submitReauth()">
+      <div id="reauthError" class="lock-error"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button onclick="toggleReauthPassword()">Show / Hide</button><button class="primary" onclick="submitReauth()">Verify</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="auditModal" class="modal" onclick="if(event.target===this) closeAuditLog()">
+  <div class="modal-box" style="width:min(900px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>Audit Log</strong><button onclick="closeAuditLog()">✕</button></div>
+    <div style="padding:14px 16px 6px"><div id="auditSummary" class="info"></div></div>
+    <div class="audit-table-wrap">
+      <table class="audit-table"><thead><tr><th>Date / Time</th><th>Action</th><th>Details</th></tr></thead><tbody id="auditRows"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div id="restorePreviewModal" class="modal" onclick="if(event.target===this) cancelRestorePreview()">
+  <div class="modal-box" style="width:min(540px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>Restore Backup</strong><button onclick="cancelRestorePreview()">✕</button></div>
+    <div style="padding:16px">
+      <div class="info">The backup was decrypted and validated successfully. Restoring will fully replace the current app data and attachments on this device.</div>
+      <div id="restorePreviewStats" class="restore-summary"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="cancelRestorePreview()">Cancel</button><button class="primary" onclick="confirmRestoreBackup()">Restore Backup</button></div>
+    </div>
+  </div>
+</div>
 
 <div id="attachmentModal" class="modal" onclick="if(event.target===this) closeAttachmentPreview()">
   <div class="modal-box">
@@ -444,11 +514,20 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
 <script>
 const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"sQiopIR4BeKNQ0p5Ac0zfJoZDHzuddt+U33LoO0o2A5cMKK+NrJm7WAThTuR2NbCnJlk2KaP/R0fOaDadMa/RBo1DSltzR3lfTBuLnM90QGRMTri+kZ77CLOJxYQs1fwOUSLQBvHc66TFXuCyZrtNWtVcq1j3Ec848Nvq4A7oBMdwacAWdyzPLLveg6hOPKyIHHCRE5phGT86laUECQo9BPj1Blhu5pLL6+V5vNvEhWotlYcf4EBHVfPb/NL3UX/EPmuImFyyr+OrhZl1G9776XkwJRPe40cwWLb2NvrXLpl7s0x5aL7u/9+Q9RePkqBOKvGzn18L2ifzsao2krtEkHpA8Cz1SAeq3paET7CjJjrmLgTkHV+Deryb0wFH3/yH3HEhitVuPDkAiu09XosvRk5nJK4nxLyY5RQz5Q6pchOVeR8HMc3225V0H/CCHI4FMnf+FClB87m9uD69KwdDeDfQeuU6jTGAQIJNDc+rxjrpHEr4cXn9ws+67Rh0SGcBdQOLfqXRUPiaHgE2eMtu95Ks5F0Rmr9eV81ybk0O3X1HvQYmwjxEjpUwHey7EYDibEmmmbmIVefH0F+1tPdszBbPmYNf0ztDzFXUELRr8hkAI2RmdIEXXLvDCaZqawPOBN/mv88HENchepNdIjwDfBxyyufJMCG+oYwlTrfZpLRvFnk1XWMe8FcGrsPJ+N1KdPPZxl67oGzszp98X2sW1izGg0VtM4Y3T4TxRkefnOF0p328LMfdJs2aUe/1IJlDHE3a53brNUX1StoRAkDld9Mk3+6tyWtGQq9nZ0AbGgZAoebmdDJ+hJ5wmHjs5sol+kHhe1/g7hKExEi0g50pk5InPzhMmMrcXn32UEchms7M+ypLutIbF3Dw+n8vb4jKahuE1o9EvpPM/oC/BsFoufw3j6mPytpxo7WvhYmBNifhz4CBFc1ShSq/jQmMvd1sWny/g02VqwsqLUqcyN/ACWBulqrkgxY4HiK348U01MkOPaihAsq9/ciaMF7+uOye48lt0mtmTB+9gc/pwsybM01eoHB6rWiGNnh5TLk/371KSYGuANmvQat2bk8eZpRxCGNF9GsXjlFkL9ZFyLwjPTsX0jbPef1QdE3/3ylg22DYFMY4xewuvc53ZRT3LnXcZXdv82FbFH2k+fsEZuyY3ewd+/c5y/yJGA3P0+pP4yckiDIwybdwvDDDw4CnYYsCnXiXrOnnWsHz9YnO0NdrbwNQg4BgSCigdsF5qxoqxaRrhIrO11ZhwEO1OFImZa3c1wviF6t/uqrupdJB8fAMn3s542ThGIVWsi3hT8gcUjClj+zyI/FWdPTvci+neJX9w+o4rLoYU8q1xXIEfHbVQwXcia+G/PHNjK0Cp9Faks79Q5kg4+6/7gN/vx1DNLA5lShb5a47aFgy3ihLthGnPGm12RlUgJ+cCN31u83gU7nQlxF/sXXZkCCpImx78MzFa1VzN1w8gL/GoZ3Fhy+KCWuu7DWmxdWcxoOiW4YzlkkOIOk9PlBAlOZsNacRmKaorRq+Wjk91jtOndB1Ix9OCF7bVz9hIcAUypy5RWC9msvJI+uV3I3/higFkIYgn43mI1+tT1JFCNyODrDY/EJlmx8gCSo+go0A1sBu8mEbWsVl1wMxjEXfibFMTCqrtWLVkt5QwtSVRNvqZsk/9CVdQitBOxp1UhfJRP8mUfEJwn/d5RSc+cQMmhzE2qV2EqFwFurCjmR34Wg/Q1JJibBD7Nn6s7pgQL5+70uK1e1cSWJIB1MNcHkf7vRGK6Rd80nTFHfVWjKszFT1FxSNA4HFdEt7Yuuk3l2FtsSAT5IHKnTGwTKIL8oJ+RPpvm/j84VMMcBu+bMBT0PbnR8O8C0DF4uOfTist1BhUzkRzEPVjs5WxDO0yqjmgsC0ovlHkzYikETTopN/mROZ1zvXKN+mHDSnlFY0CKRUv+2HgxcmSLtBgc04zYVk3sYWe9VBNHsfrGOS5maJsw0dqHSEInDKNrmvRRY0LzUS2C1XqltiwmSQxRekGwDEYbwYRoxOagxOEdIBNkLA04DNQPm6BLtC/m7BS3lCzrHEg3aNirJtBJxEHxkhfxIcDFdnEmJMrOOHSDBbmxxK3qtbFqGezteS2YP5T8yBys9yhklR2smy2PYO6XrGDE="};
+const APP_VERSION='11';
+const DATA_SCHEMA_VERSION=7;
+const CURRENCY='SAR';
 const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
+const RESTORE_TEMP_KEY='electricitySplitRestoreTempV1';
+const LAST_BACKUP_KEY='electricitySplitLastBackupAt';
 const AAD_TEXT='electricity-split-v1';
-let bills=[], vacations=[], payments=[], legacyPaid=0;
-let sessionPassword='', sessionKey=null, sessionSalt=null;
-let saveChain=Promise.resolve();
+const ATTACHMENT_AAD_PREFIX='electricity-split-attachment-v1:';
+const MAX_ATTACHMENT_BYTES=15*1024*1024;
+let bills=[], vacations=[], payments=[], voidedBills=[], auditLog=[], legacyPaid=0;
+let sessionKey=null, sessionSalt=null;
+let saveChain=Promise.resolve(), savePending=false;
+let reauthResolver=null, reauthValidator=null, pendingRestore=null;
+let swRegistration=null;
 
 const bytesToB64 = bytes => btoa(String.fromCharCode(...bytes));
 const b64ToBytes = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -480,12 +559,27 @@ async function decryptBlob(password,blob){
 async function encryptStateNow(){
   if(!sessionKey||!sessionSalt) return;
   const iv=crypto.getRandomValues(new Uint8Array(12));
-  const state={bills,vacations,payments,legacyPaid:0,version:6};
+  const state={bills,vacations,payments,voidedBills,auditLog,legacyPaid:0,version:DATA_SCHEMA_VERSION,appVersion:APP_VERSION};
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},sessionKey,new TextEncoder().encode(JSON.stringify(state)));
   localStorage.setItem(ENCRYPTED_STATE_KEY,JSON.stringify({salt:bytesToB64(sessionSalt),iv:bytesToB64(iv),ct:bytesToB64(new Uint8Array(ct))}));
 }
+function setSaveStatus(kind,text){
+  const el=document.getElementById('saveStatus'); if(!el)return;
+  el.className='app-status '+kind; el.textContent=text;
+}
 function queueEncryptedSave(){
-  saveChain=saveChain.then(()=>encryptStateNow()).catch(()=>{});
+  savePending=true; setSaveStatus('saving','Saving…');
+  saveChain=saveChain.then(async()=>{
+    await encryptStateNow();
+    savePending=false;
+    const now=new Date();
+    setSaveStatus('saved',`Saved ✓ ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`);
+  }).catch(err=>{
+    savePending=false; setSaveStatus('error','Save failed');
+    console.error('Encrypted save failed',err);
+    alert('The latest change could not be saved. Please create a backup and check browser storage before continuing.');
+  });
+  return saveChain;
 }
 async function unlockApp(){
   const input=document.getElementById('unlockPassword');
@@ -503,35 +597,69 @@ async function unlockApp(){
     vacations=state.vacations;
     const hadPayments=Array.isArray(state.payments);
     payments=hadPayments ? state.payments.map(normalizePayment).filter(Boolean) : [];
+    voidedBills=Array.isArray(state.voidedBills)?state.voidedBills:[];
+    auditLog=Array.isArray(state.auditLog)?state.auditLog:[];
     legacyPaid=0;
-    // v6 migration: discard the obsolete pre-ledger Paid total; only named Payment records count.
-    sessionPassword=password; sessionKey=opened.key; sessionSalt=opened.salt;
-    if(!blob || !hadPayments || Number(state.version)<6 || Number(state.legacyPaid)>0 || Number(state.paid)>0) await encryptStateNow();
+    // v11 migration keeps the legacy seed only as a safety fallback until a verified backup is created.
+    sessionKey=opened.key; sessionSalt=opened.salt;
+    if(!blob || !hadPayments || Number(state.version)<DATA_SCHEMA_VERSION || Number(state.legacyPaid)>0 || Number(state.paid)>0) await encryptStateNow();
     ['salahAlaaElectricityBills','salahAlaaVacations','salahAlaaPaidTotal','salahAlaaDataVersion'].forEach(k=>localStorage.removeItem(k));
     document.getElementById('lockScreen').style.display='none';
     document.getElementById('appRoot').hidden=false;
     input.value=''; error.textContent='';
+    await migrateLegacyAttachments().catch(()=>{});
     renderAll();
-    if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+    checkAttachmentIntegrity();
+    updateBackupStatus();
+    updateStorageStatus();
+    setupServiceWorkerUpdate();
   }catch(e){
     error.textContent='Incorrect password.';
     input.select();
   }
 }
-function lockApp(){
-  sessionPassword='';sessionKey=null;sessionSalt=null;bills=[];vacations=[];payments=[];legacyPaid=0;
+async function lockApp(){
+  try{await saveChain;}catch(e){}
+  sessionKey=null;sessionSalt=null;bills=[];vacations=[];payments=[];voidedBills=[];auditLog=[];legacyPaid=0;
   document.getElementById('appRoot').hidden=true;
   document.getElementById('lockScreen').style.display='grid';
   document.getElementById('unlockPassword').focus();
 }
-function verifyAdmin(action='make this change'){
-  const entered=prompt(`Enter the app password to ${action}:`);
-  if(entered===null) return false;
-  const candidate=canonicalizePassword(entered);
-  if(candidate!==canonicalizePassword(sessionPassword)){alert('Incorrect password.');return false;}
-  return true;
+function openReauthModal(action,validator){
+  return new Promise(resolve=>{
+    reauthResolver=resolve; reauthValidator=validator||null;
+    document.getElementById('reauthTitle').textContent='Verify Password';
+    document.getElementById('reauthCopy').textContent=`Enter the app password to ${action}.`;
+    const input=document.getElementById('reauthPassword'); input.value=''; input.type='password';
+    document.getElementById('reauthError').textContent='';
+    document.getElementById('reauthModal').classList.add('open'); setTimeout(()=>input.focus(),50);
+  });
 }
-
+function toggleReauthPassword(){const i=document.getElementById('reauthPassword');i.type=i.type==='password'?'text':'password';i.focus();}
+function cancelReauth(){document.getElementById('reauthModal').classList.remove('open');const r=reauthResolver;reauthResolver=null;reauthValidator=null;if(r)r(null);}
+async function submitReauth(){
+  const input=document.getElementById('reauthPassword'),error=document.getElementById('reauthError');
+  const value=canonicalizePassword(input.value); if(!value){error.textContent='Enter the app password.';return;}
+  error.textContent='Verifying…';
+  try{
+    let ok=true;
+    if(reauthValidator) ok=await reauthValidator(value);
+    else{
+      const blob=JSON.parse(localStorage.getItem(ENCRYPTED_STATE_KEY)||'null')||SEED_ENCRYPTED;
+      await decryptBlob(value,blob);
+    }
+    if(ok===false) throw new Error('Invalid password');
+    document.getElementById('reauthModal').classList.remove('open');
+    const r=reauthResolver;reauthResolver=null;reauthValidator=null;if(r)r(value);
+  }catch(e){error.textContent='Incorrect password.';input.select();}
+}
+async function verifyAdmin(action='make this change'){
+  return Boolean(await openReauthModal(action));
+}
+function logAudit(type,details={}){
+  auditLog.push({id:`a-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,type,at:new Date().toISOString(),details});
+  if(auditLog.length>1500) auditLog=auditLog.slice(-1500);
+}
 
 
 const toCents = value => Math.round((Number(value)||0)*100);
@@ -642,7 +770,7 @@ function filteredBillsForTable(){
 }
 
 
-const money = n => 'SAR ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const money = n => CURRENCY+' ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const dateFmt = s => new Date(s+'T12:00:00').toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
 const daysInclusive = (a,b) => Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)+1;
 const isoDay = d => d.toISOString().slice(0,10);
@@ -652,12 +780,20 @@ function isOnVacation(person, day) {
   return vacations.some(v => v.person===person && day>=v.start && day<=v.end);
 }
 
-function pennySplit(amount, index) {
-  const cents = Math.round(Number(amount)*100);
-  const base = Math.floor(cents/2);
-  const odd = cents - base*2;
-  const salah = base + (odd && index % 2 === 0 ? 1 : 0);
-  return [salah/100, (cents-salah)/100];
+function pennySplit(amount,bill,index=0) {
+  const cents=Math.round(Number(amount)*100), base=Math.floor(cents/2), odd=cents-base*2;
+  const key=billMonthKey(bill);
+  let salahGetsOdd=true;
+  if(/^\d{4}-\d{2}$/.test(key)){
+    const [y,m]=key.split('-').map(Number);
+    // Stable month parity: June 2025 and every other month assigns the odd cent to Salah.
+    salahGetsOdd=((y*12+(m-1))%2===1);
+  }else{
+    const seed=String(bill?.id||index); let hash=0; for(const ch of seed) hash=(hash*31+ch.charCodeAt(0))>>>0;
+    salahGetsOdd=hash%2===0;
+  }
+  const salah=base+(odd&&salahGetsOdd?1:0);
+  return [salah/100,(cents-salah)/100];
 }
 
 function billSplit(b,index) {
@@ -672,7 +808,7 @@ function billSplit(b,index) {
     else { salahWeight += .5; alaaWeight += .5; }
   }
   if(!affected) {
-    const [s,a]=pennySplit(b.amount,index);
+    const [s,a]=pennySplit(b.amount,b,index);
     return {s,a,days,affected:false,salahWeight:days/2,alaaWeight:days/2};
   }
   const cents=Math.round(Number(b.amount)*100);
@@ -784,7 +920,7 @@ function renderTable() {
       const idx=bills.indexOf(b), sp=billSplit(b,idx);
       const paymentAlloc=alloc.byBill.get(String(b.id)) || {overallPaid:0,overallRemaining:toCents(b.amount)};
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td><strong>${b.label}</strong><span class="locked-pill">🔒 Locked</span></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${sp.days}</td><td class="money">${money(b.amount)}</td><td class="money">${money(sp.s)}</td><td class="money">${money(sp.a)}</td><td><span class="pill">${splitLabel(b,idx)}</span></td><td>${renderBillPaymentCell(paymentAlloc)}</td><td><button class="attachment-btn" onclick="previewAttachment('${String(b.id)}')">📎 Preview</button></td><td><div class="action-cell"><button class="mini-btn" onclick="editBill('${String(b.id)}')">Edit</button><button class="mini-btn danger-mini" onclick="deleteBill('${String(b.id)}')">Delete</button></div></td>`;
+      tr.innerHTML=`<td><strong>${b.label}</strong><span class="locked-pill">🔒 Locked</span></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${sp.days}</td><td class="money">${money(b.amount)}</td><td class="money">${money(sp.s)}</td><td class="money">${money(sp.a)}</td><td><span class="pill">${splitLabel(b,idx)}</span></td><td>${renderBillPaymentCell(paymentAlloc)}</td><td><button class="attachment-btn" onclick="previewAttachment('${String(b.id)}')">📎 Preview</button></td><td><div class="action-cell"><button class="mini-btn" onclick="editBill('${String(b.id)}')">Edit</button><button class="mini-btn danger-mini" onclick="deleteBill('${String(b.id)}')">Void</button></div></td>`;
       tbody.appendChild(tr);
     });
   }
@@ -814,8 +950,8 @@ function persist() {
 }
 
 
-function editBill(id){
-  if(!verifyAdmin('edit this saved bill')) return;
+async function editBill(id){
+  if(!(await verifyAdmin('edit this saved bill'))) return;
   const b=bills.find(x=>String(x.id)===String(id));
   if(!b) return;
   pendingEditBillId=String(id);
@@ -823,37 +959,42 @@ function editBill(id){
   document.getElementById('editBillStart').value=b.start;
   document.getElementById('editBillEnd').value=b.end;
   document.getElementById('editBillAmount').value=Number(b.amount).toFixed(2);
+  document.getElementById('editBillAttachment').value='';
   document.getElementById('editBillModal').classList.add('open');
 }
 function closeEditBillModal(){
   document.getElementById('editBillModal').classList.remove('open');
+  const f=document.getElementById('editBillAttachment');if(f)f.value='';
   pendingEditBillId=null;
 }
-function saveBillEdit(){
+async function saveBillEdit(){
   if(!pendingEditBillId) return;
   const b=bills.find(x=>String(x.id)===String(pendingEditBillId));
   if(!b) return closeEditBillModal();
   const month=document.getElementById('editBillMonth').value;
-  const label=monthToLabel(month);
-  const start=document.getElementById('editBillStart').value;
-  const end=document.getElementById('editBillEnd').value;
-  const amount=Number(document.getElementById('editBillAmount').value);
-  if(!label||!start||!end||!Number.isFinite(amount)||amount<0){
-    alert('Please complete all bill fields.'); return;
-  }
-  if(end<start){alert('End date cannot be before start date.'); return;}
-  Object.assign(b,{label,start,end,amount:Math.round(amount*100)/100});
+  const label=monthToLabel(month),start=document.getElementById('editBillStart').value,end=document.getElementById('editBillEnd').value;
+  const amount=Number(document.getElementById('editBillAmount').value),file=document.getElementById('editBillAttachment').files[0];
+  if(!label||!start||!end||!Number.isFinite(amount)||amount<=0) return alert('Please complete all bill fields with an amount greater than zero.');
+  if(end<start) return alert('End date cannot be before start date.');
+  const dup=bills.some(x=>String(x.id)!==String(b.id)&&billMonthKey(x)===month); if(dup) return alert('A bill for this month already exists.');
+  const overlap=bills.some(x=>String(x.id)!==String(b.id)&&start<=x.end&&end>=x.start);
+  if(overlap&&!confirm('This billing period overlaps another recorded bill. Save changes anyway?')) return;
+  if(month!==end.slice(0,7)&&!confirm('The selected Bill Month does not match the month of the billing end date. Save changes anyway?')) return;
+  if(file){if(!['application/pdf','image/jpeg','image/png'].includes(file.type))return alert('Attachment must be PDF, JPG or PNG.');if(file.size>MAX_ATTACHMENT_BYTES)return alert('Attachment is too large. Maximum size is 15 MB.');}
+  const before={...b};
+  if(file){try{await saveAttachment(String(b.id),file);}catch(e){console.error(e);return alert('Could not securely save the replacement attachment. Bill data was not changed.');}}
+  Object.assign(b,{label,start,end,amount:Math.round(amount*100)/100,updatedAt:new Date().toISOString()});
+  logAudit('bill_edited',{billId:String(b.id),before,after:{...b},attachmentReplaced:Boolean(file)});
   bills.sort((a,b)=>a.start.localeCompare(b.start));
-  closeEditBillModal();
-  persist();
+  document.getElementById('editBillAttachment').value=''; closeEditBillModal(); persist();
 }
 async function deleteBill(id){
-  if(!verifyAdmin('delete this saved bill')) return;
-  const b=bills.find(x=>String(x.id)===String(id));
-  if(!b) return;
-  if(!confirm(`Delete ${b.label}? This cannot be undone.`)) return;
-  bills=bills.filter(x=>String(x.id)!==String(id));
-  try{await deleteAttachment(id);}catch(e){}
+  if(!(await verifyAdmin('void this saved bill'))) return;
+  const b=bills.find(x=>String(x.id)===String(id)); if(!b)return;
+  if(!confirm(`Void ${b.label}? It will be excluded from calculations but preserved in the encrypted audit history.`)) return;
+  const record={...b,voidedAt:new Date().toISOString()};
+  voidedBills.push(record); bills=bills.filter(x=>String(x.id)!==String(id));
+  logAudit('bill_voided',{bill:record});
   persist();
 }
 
@@ -863,35 +1004,41 @@ async function addBill() {
   const start=document.getElementById('start').value, end=document.getElementById('end').value;
   const amount=parseFloat(document.getElementById('amount').value);
   const file=document.getElementById('billAttachment').files[0];
-  if(!label || !start || !end || !Number.isFinite(amount) || amount<0) return alert('Please complete all bill fields.');
+  if(!label || !start || !end || !Number.isFinite(amount) || amount<=0) return alert('Please complete all bill fields with an amount greater than zero.');
   if(new Date(end) < new Date(start)) return alert('End date cannot be before start date.');
+  if(bills.some(b=>billMonthKey(b)===month)) return alert('A bill for this month already exists.');
+  const overlap=bills.some(b=>start<=b.end&&end>=b.start);
+  if(overlap&&!confirm('This billing period overlaps another recorded bill. Save it anyway?')) return;
+  if(month!==end.slice(0,7)&&!confirm('The selected Bill Month does not match the month of the billing end date. Save it anyway?')) return;
   if(!file) return alert('Please attach the bill as PDF, JPG or PNG.');
   if(!['application/pdf','image/jpeg','image/png'].includes(file.type)) return alert('Attachment must be PDF, JPG or PNG.');
+  if(file.size>MAX_ATTACHMENT_BYTES) return alert('Attachment is too large. Maximum size is 15 MB.');
   const id=String(Date.now());
-  bills.push({id,label,start,end,amount});
+  bills.push({id,label,start,end,amount,createdAt:new Date().toISOString(),updatedAt:null});
   try { await saveAttachment(id,file); } catch(e) { bills=bills.filter(b=>String(b.id)!==id); return alert('Could not save the attachment on this device.'); }
   ['label','start','end','amount'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('billAttachment').value='';
+  logAudit('bill_added',{billId:id,label,start,end,amount});
   persist();
 }
 
 function addVacation() {
   const person=document.getElementById('vacPerson').value;
-  const start=document.getElementById('vacStart').value, end=document.getElementById('vacEnd').value;
-  if(!start || !end) return alert('Please enter vacation start and end dates.');
-  if(new Date(end) < new Date(start)) return alert('Vacation end date cannot be before start date.');
-  vacations.push({id:String(Date.now()),person,start,end});
-  document.getElementById('vacStart').value=''; document.getElementById('vacEnd').value='';
-  persist();
+  const start=document.getElementById('vacStart').value,end=document.getElementById('vacEnd').value;
+  if(!start||!end) return alert('Please enter vacation start and end dates.');
+  if(end<start) return alert('Vacation end date cannot be before start date.');
+  if(vacations.some(v=>v.person===person&&start<=v.end&&end>=v.start)) return alert(`${person} already has a vacation overlapping this period.`);
+  const item={id:String(Date.now()),person,start,end,createdAt:new Date().toISOString()}; vacations.push(item);
+  logAudit('vacation_added',{...item});
+  document.getElementById('vacStart').value='';document.getElementById('vacEnd').value='';persist();
 }
 
-function removeVacation(id) {
-  if(!verifyAdmin('remove this vacation')) return;
-  const v=vacations.find(x=>String(x.id)===String(id));
-  if(!v) return;
+async function removeVacation(id) {
+  if(!(await verifyAdmin('remove this vacation'))) return;
+  const v=vacations.find(x=>String(x.id)===String(id)); if(!v)return;
   if(!confirm(`Remove ${v.person} vacation from ${dateFmt(v.start)} to ${dateFmt(v.end)}?`)) return;
-  vacations=vacations.filter(v=>String(v.id)!==String(id));
-  persist();
+  logAudit('vacation_removed',{...v,removedAt:new Date().toISOString()});
+  vacations=vacations.filter(v=>String(v.id)!==String(id));persist();
 }
 
 function renderPayments(){
@@ -942,12 +1089,13 @@ function addPayment(){
   const duplicate=activePayments().some(p=>p.person===person && p.date===date && toCents(p.amount)===cents);
   if(duplicate && !confirm(`Possible duplicate payment: ${person} · ${dateFmt(date)} · ${money(fromCents(cents))}. Save it anyway?`)) return;
   const now=new Date().toISOString();
-  payments.push({id:`p-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,person,date,amount:fromCents(cents),note,createdAt:now,updatedAt:null,voided:false,voidedAt:null,audit:[]});
+  const payment={id:`p-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,person,date,amount:fromCents(cents),note,createdAt:now,updatedAt:null,voided:false,voidedAt:null,audit:[]};
+  payments.push(payment); logAudit('payment_added',{id:payment.id,person,date,amount:payment.amount,note});
   resetPaymentForm();
   persist();
 }
-function editPayment(id){
-  if(!verifyAdmin('edit this saved payment')) return;
+async function editPayment(id){
+  if(!(await verifyAdmin('edit this saved payment'))) return;
   const p=payments.find(x=>String(x.id)===String(id));
   if(!p || p.voided) return;
   pendingEditPaymentId=String(id);
@@ -977,11 +1125,12 @@ function savePaymentEdit(){
   p.audit=Array.isArray(p.audit)?p.audit:[];
   p.audit.push(previous);
   Object.assign(p,{person,date,amount:fromCents(cents),note,updatedAt:new Date().toISOString()});
+  logAudit('payment_edited',{paymentId:p.id,before:previous,after:{person,date,amount:p.amount,note}});
   closeEditPaymentModal();
   persist();
 }
-function voidPayment(id){
-  if(!verifyAdmin('void this saved payment')) return;
+async function voidPayment(id){
+  if(!(await verifyAdmin('void this saved payment'))) return;
   const p=payments.find(x=>String(x.id)===String(id));
   if(!p || p.voided) return;
   if(!confirm(`Void ${p.person} payment of ${money(p.amount)} dated ${dateFmt(p.date)}? It will stay in Payment History but will no longer count in calculations.`)) return;
@@ -990,28 +1139,50 @@ function voidPayment(id){
   p.voided=true;
   p.voidedAt=new Date().toISOString();
   p.updatedAt=p.voidedAt;
+  logAudit('payment_voided',{paymentId:p.id,person:p.person,date:p.date,amount:p.amount});
   persist();
 }
 
 const ATTACH_DB='electricitySplitAttachments';
 let previewObjectUrl=null;
-function openAttachmentDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(ATTACH_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files')) req.result.createObjectStore('files');};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
-async function saveAttachment(id,file){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({blob:file,name:file.name,type:file.type},String(id));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
+function openAttachmentDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(ATTACH_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files'))req.result.createObjectStore('files');};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function encryptAttachmentPayload(id,blob,name,type){
+  if(!sessionKey)throw new Error('App is locked');
+  if(blob.size>MAX_ATTACHMENT_BYTES)throw new Error('Attachment exceeds 15 MB');
+  const iv=crypto.getRandomValues(new Uint8Array(12)),plain=await blob.arrayBuffer();
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(ATTACHMENT_AAD_PREFIX+id)},sessionKey,plain);
+  return {encrypted:true,version:1,iv:bytesToB64(iv),ct,name:name||'attachment',type:type||blob.type||'application/octet-stream',size:blob.size};
+}
+async function decryptAttachmentPayload(id,item){
+  if(!item)return null;
+  if(!item.encrypted&&item.blob)return item;
+  const iv=b64ToBytes(item.iv),ct=item.ct instanceof ArrayBuffer?item.ct:(item.ct?.buffer||item.ct);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(ATTACHMENT_AAD_PREFIX+id)},sessionKey,ct);
+  return {blob:new Blob([plain],{type:item.type||'application/octet-stream'}),name:item.name||'attachment',type:item.type||'application/octet-stream'};
+}
+async function saveAttachment(id,file){
+  const payload=await encryptAttachmentPayload(String(id),file,file.name,file.type),db=await openAttachmentDb();
+  return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put(payload,String(id));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});
+}
 async function deleteAttachment(id){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete(String(id));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
-async function getAttachment(id){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const req=db.transaction('files','readonly').objectStore('files').get(String(id));req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}
+async function getRawAttachment(id){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const req=db.transaction('files','readonly').objectStore('files').get(String(id));req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}
+async function getAttachment(id){const item=await getRawAttachment(id);if(!item)return null;if(!item.encrypted&&item.blob){const migrated=await encryptAttachmentPayload(String(id),item.blob,item.name,item.type);const db=await openAttachmentDb();await new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put(migrated,String(id));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});return {blob:item.blob,name:item.name,type:item.type};}return decryptAttachmentPayload(String(id),item);}
+async function listRawAttachments(){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readonly'),st=tx.objectStore('files'),kr=st.getAllKeys(),vr=st.getAll();let keys,vals;kr.onsuccess=()=>{keys=kr.result;done();};vr.onsuccess=()=>{vals=vr.result;done();};kr.onerror=vr.onerror=()=>reject(tx.error||kr.error||vr.error);function done(){if(keys&&vals)resolve(keys.map((k,i)=>({id:String(k),value:vals[i]})));}});}
+async function migrateLegacyAttachments(){const items=await listRawAttachments();for(const row of items){if(row.value&&!row.value.encrypted&&row.value.blob){try{const enc=await encryptAttachmentPayload(row.id,row.value.blob,row.value.name,row.value.type),db=await openAttachmentDb();await new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put(enc,row.id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}catch(e){console.warn('Legacy attachment migration skipped',row.id,e);}}}}
+async function replaceAttachmentRecords(records){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite'),st=tx.objectStore('files');st.clear();records.forEach(r=>st.put(r.value,String(r.id)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
 async function previewAttachment(id){
-  const bill=bills.find(b=>String(b.id)===String(id));
-  const modal=document.getElementById('attachmentModal'), body=document.getElementById('attachmentBody');
-  document.getElementById('attachmentTitle').textContent=(bill?.label||'Bill')+' · Attachment';
-  body.innerHTML='<div class="modal-empty">Loading attachment…</div>'; modal.classList.add('open');
-  try{const item=await getAttachment(id); if(!item){body.innerHTML='<div class="modal-empty">No attachment is linked to this older bill.</div>';return;} if(previewObjectUrl) URL.revokeObjectURL(previewObjectUrl); previewObjectUrl=URL.createObjectURL(item.blob); if(item.type==='application/pdf') body.innerHTML=`<iframe src="${previewObjectUrl}" title="Bill PDF"></iframe>`; else body.innerHTML=`<img src="${previewObjectUrl}" alt="Bill attachment">`;}
-  catch(e){body.innerHTML='<div class="modal-empty">Could not open this attachment.</div>';}
+  const bill=bills.find(b=>String(b.id)===String(id))||voidedBills.find(b=>String(b.id)===String(id));
+  const modal=document.getElementById('attachmentModal'),body=document.getElementById('attachmentBody');
+  document.getElementById('attachmentTitle').textContent=(bill?.label||'Bill')+' · Attachment';body.innerHTML='<div class="modal-empty">Loading attachment…</div>';modal.classList.add('open');
+  try{const item=await getAttachment(id);if(!item){body.innerHTML='<div class="modal-empty">No attachment is linked to this bill.</div>';return;}if(previewObjectUrl)URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=URL.createObjectURL(item.blob);if(item.type==='application/pdf')body.innerHTML=`<iframe src="${previewObjectUrl}" title="Bill PDF"></iframe>`;else body.innerHTML=`<img src="${previewObjectUrl}" alt="Bill attachment">`;}
+  catch(e){body.innerHTML='<div class="modal-empty">Could not decrypt or open this attachment.</div>';}
 }
 function closeAttachmentPreview(){document.getElementById('attachmentModal').classList.remove('open');document.getElementById('attachmentBody').innerHTML='<div class="modal-empty">No attachment selected.</div>';if(previewObjectUrl){URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=null;}}
 function toggleCalendar(){const p=document.getElementById('calendarPanel'),b=document.getElementById('calendarToggle');const open=p.classList.toggle('open');b.textContent=open?'Hide Calendar':'Show Calendar';if(open) renderVacationCalendar();}
 function renderCalendarSummary(){const box=document.getElementById('calendarSummary');const parts=['Salah','Alaa'].map(person=>{const vs=vacations.filter(v=>v.person===person).sort((a,b)=>a.start.localeCompare(b.start));const txt=vs.length?vs.map(v=>`${dateFmt(v.start)} → ${dateFmt(v.end)}`).join(' · '):'No vacations';return `<div class="summary-chip"><strong>${person}</strong> · ${txt}</div>`;});box.innerHTML=parts.join('');}
 function vacationClass(day){const sv=isOnVacation('Salah',day),av=isOnVacation('Alaa',day);return sv&&av?'both':sv?'salah':av?'alaa':'';}
-function renderVacationCalendar(){const root=document.getElementById('vacationCalendar');root.innerHTML='';[2025,2026].forEach(year=>{const y=document.createElement('div');y.className='year-block';y.innerHTML=`<div class="year-title">${year}</div>`;const mg=document.createElement('div');mg.className='months-grid';for(let m=0;m<12;m++){const mc=document.createElement('div');mc.className='month-card';const title=new Date(year,m,1).toLocaleDateString('en-US',{month:'long'});let html=`<div class="month-title">${title}</div><div class="week"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div><div class="days">`;const first=new Date(year,m,1).getDay(), last=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)html+='<span class="day blank"></span>';for(let d=1;d<=last;d++){const day=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<span class="day ${vacationClass(day)}" title="${day}">${d}</span>`;}html+='</div>';mc.innerHTML=html;mg.appendChild(mc);}y.appendChild(mg);root.appendChild(y);});}
+function calendarYears(){const ys=new Set([new Date().getFullYear(),new Date().getFullYear()+1]);bills.forEach(b=>{ys.add(Number(String(b.start).slice(0,4)));ys.add(Number(String(b.end).slice(0,4)));});vacations.forEach(v=>{ys.add(Number(String(v.start).slice(0,4)));ys.add(Number(String(v.end).slice(0,4)));});return [...ys].filter(Number.isFinite).sort((a,b)=>a-b);}
+function renderVacationCalendar(){const root=document.getElementById('vacationCalendar');root.innerHTML='';calendarYears().forEach(year=>{const y=document.createElement('div');y.className='year-block';y.innerHTML=`<div class="year-title">${year}</div>`;const mg=document.createElement('div');mg.className='months-grid';for(let m=0;m<12;m++){const mc=document.createElement('div');mc.className='month-card';const title=new Date(year,m,1).toLocaleDateString('en-US',{month:'long'});let html=`<div class="month-title">${title}</div><div class="week"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div><div class="days">`;const first=new Date(year,m,1).getDay(), last=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)html+='<span class="day blank"></span>';for(let d=1;d<=last;d++){const day=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<span class="day ${vacationClass(day)}" title="${day}">${d}</span>`;}html+='</div>';mc.innerHTML=html;mg.appendChild(mc);}y.appendChild(mg);root.appendChild(y);});}
 
 function fifoAllocations(){
   const ordered=[...bills].sort((a,b)=>{
@@ -1091,7 +1262,7 @@ function generatePDFReport(){
   const coverageEnd=selected.reduce((m,b)=>!m||b.end>m?b.end:m,'');
   const now=new Date();
   const generated=`${String(now.getDate()).padStart(2,'0')} ${REPORT_MONTH_SHORT[now.getMonth()]} ${String(now.getFullYear()).slice(-2)}, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const reportRef=`ESR-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+  const reportRef=`ESR-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
   const ledger=paymentLedger();
   const settlement=ledger.interDebt>0?`${ledger.debtor} owes ${ledger.creditor} ${money(fromCents(ledger.interDebt))}`:'No internal settlement currently due';
   const billRows=selected.map(b=>{
@@ -1117,7 +1288,7 @@ function generatePDFReport(){
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Monthly Billing Ledger</h2><p>FIFO allocation from oldest recorded bill to newest · Amounts in SAR</p></div>
+      <div class="report-section-head"><h2>Monthly Billing Ledger</h2><p>Rows newest first · FIFO calculations oldest first · Amounts in SAR</p></div>
       <table class="report-table"><colgroup><col style="width:17%"><col style="width:28%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:15%"></colgroup><thead><tr><th>Bill Month</th><th>Billing Period</th><th style="text-align:right">Total</th><th style="text-align:right">Paid</th><th style="text-align:right">Remaining</th><th style="text-align:center">Status</th></tr></thead><tbody>${billRows}</tbody></table>
       <div class="report-status-legend"><strong>Payment status</strong><span class="legend-pair"><span class="legend-badge paid">Paid</span><span>Fully settled by FIFO</span></span><span class="legend-pair"><span class="legend-badge partial">Partially Paid</span><span>Partially settled</span></span><span class="legend-pair"><span class="legend-badge unpaid">Unpaid</span><span>No FIFO payment allocated</span></span></div>
     </section>
@@ -1127,13 +1298,13 @@ function generatePDFReport(){
       <div class="report-person-grid">
         <div class="report-person-card salah"><div class="report-person-top"><h3>Salah</h3><span class="share-pct">${sPct.toFixed(2)}% of bills</span></div><div class="report-person-body">
           <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(sShare))}</strong></div>
-          <div class="report-person-row"><span>Paid (FIFO allocated)</span><strong>${money(fromCents(sPaid))}</strong></div>
+          <div class="report-person-row"><span>Applied to own share (FIFO)</span><strong>${money(fromCents(sPaid))}</strong></div>
           <div class="report-person-row"><span>Remaining</span><strong>${money(fromCents(sRemaining))}</strong></div>
           <div class="report-person-progress-label"><span>Payment progress</span><strong>${sPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${sPaidPct.toFixed(2)}%"></i></div>
         </div></div>
         <div class="report-person-card alaa"><div class="report-person-top"><h3>Alaa</h3><span class="share-pct">${aPct.toFixed(2)}% of bills</span></div><div class="report-person-body">
           <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(aShare))}</strong></div>
-          <div class="report-person-row"><span>Paid (FIFO allocated)</span><strong>${money(fromCents(aPaid))}</strong></div>
+          <div class="report-person-row"><span>Applied to own share (FIFO)</span><strong>${money(fromCents(aPaid))}</strong></div>
           <div class="report-person-row"><span>Remaining</span><strong>${money(fromCents(aRemaining))}</strong></div>
           <div class="report-person-progress-label"><span>Payment progress</span><strong>${aPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${aPaidPct.toFixed(2)}%"></i></div>
         </div></div>
@@ -1149,12 +1320,15 @@ function generatePDFReport(){
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Settlement Position</h2><p>Current position as of the report generation time</p></div>
+      <div class="report-section-head"><h2>Settlement Position</h2><p>All-time position as of the report generation time</p></div>
       <div class="report-settlement">
+        <div class="report-settle-card"><span>Salah Actual Payments - All Time</span><strong>${money(fromCents(ledger.sPaid))}</strong></div>
+        <div class="report-settle-card"><span>Alaa Actual Payments - All Time</span><strong>${money(fromCents(ledger.aPaid))}</strong></div>
         <div class="report-settle-card"><span>Internal Settlement</span><strong>${escapeHtml(settlement)}</strong></div>
         <div class="report-settle-card"><span>Outstanding to Electricity - All Recorded Bills</span><strong>${money(fromCents(ledger.outstanding))}</strong></div>
       </div>
-      ${(alloc.salahCredit||alloc.alaaCredit)?`<div class="report-settlement" style="margin-top:8px">${alloc.salahCredit?`<div class="report-settle-card"><span>Salah Account Credit</span><strong>${money(fromCents(alloc.salahCredit))}</strong></div>`:''}${alloc.alaaCredit?`<div class="report-settle-card"><span>Alaa Account Credit</span><strong>${money(fromCents(alloc.alaaCredit))}</strong></div>`:''}</div>`:''}
+      ${(ledger.interDebt>0||ledger.overallOverpayment>0)?`<div class="report-settlement" style="margin-top:8px">${ledger.interDebt>0?`<div class="report-settle-card"><span>${ledger.creditor} Receivable from ${ledger.debtor}</span><strong class="report-credit">${money(fromCents(ledger.interDebt))}</strong></div>`:''}${ledger.overallOverpayment>0?`<div class="report-settle-card"><span>Electricity Credit / Overpayment</span><strong class="report-credit">${money(fromCents(ledger.overallOverpayment))}</strong></div>`:''}</div>`:''}
+      <div class="report-reconcile"><strong>Reconciliation:</strong> Actual payments recorded: <strong>${money(fromCents(ledger.paidTotal))}</strong> · Applied to electricity bills: <strong>${money(fromCents(Math.min(ledger.paidTotal,ledger.totalC)))}</strong>${ledger.overallOverpayment>0?` · Electricity credit: <strong>${money(fromCents(ledger.overallOverpayment))}</strong>`:''}. Internal receivables arise only when one person has paid above their own vacation-adjusted share while the other still owes.</div>
       <div class="report-method"><strong>FIFO methodology:</strong> active payments are applied to the oldest recorded bill obligations first. The bill payment status reflects settlement with the electricity provider; each person's FIFO allocation is tracked separately against that person's vacation-adjusted share for internal settlement. Status labels are <strong>Paid</strong>, <strong>Partially Paid</strong>, and <strong>Unpaid</strong>.</div>
     </section>
 
@@ -1172,6 +1346,110 @@ window.addEventListener('afterprint',()=>{
   if(reportPreviousTitle){document.title=reportPreviousTitle;reportPreviousTitle='';}
 });
 
+
+function auditActionLabel(type){return ({bill_added:'Bill Added',bill_edited:'Bill Edited',bill_voided:'Bill Voided',payment_added:'Payment Added',payment_edited:'Payment Edited',payment_voided:'Payment Voided',vacation_added:'Vacation Added',vacation_removed:'Vacation Removed',backup_created:'Backup Created',backup_restored:'Backup Restored'}[type]||String(type||'Event').replaceAll('_',' '));}
+function auditDetails(event){
+  const d=event?.details||{};
+  switch(event?.type){
+    case 'bill_added': return `${d.label||'Bill'} · ${money(d.amount||0)}`;
+    case 'bill_edited': return `${d.after?.label||d.billId||'Bill'} · financial fields updated${d.attachmentReplaced?' · attachment replaced':''}`;
+    case 'bill_voided': return `${d.bill?.label||'Bill'} · ${money(d.bill?.amount||0)}`;
+    case 'payment_added': return `${d.person||''} · ${money(d.amount||0)} · ${d.date||''}`;
+    case 'payment_edited': return `${d.after?.person||''} · ${money(d.after?.amount||0)} · ${d.after?.date||''}`;
+    case 'payment_voided': return `${d.person||''} · ${money(d.amount||0)} · ${d.date||''}`;
+    case 'vacation_added': case 'vacation_removed': return `${d.person||''} · ${d.start||''} → ${d.end||''}`;
+    case 'backup_created': return `${d.attachments||0} encrypted attachment${Number(d.attachments)===1?'':'s'}`;
+    case 'backup_restored': return `Backup created ${d.backupCreatedAt||'unknown'} · ${d.attachments||0} attachment${Number(d.attachments)===1?'':'s'}`;
+    default:return JSON.stringify(d).slice(0,240);
+  }
+}
+function openAuditLog(){
+  const tbody=document.getElementById('auditRows');tbody.innerHTML='';
+  const rows=[...auditLog].sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,150);
+  if(!rows.length)tbody.innerHTML='<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:22px">No audit events recorded yet. v11 starts recording new financial changes automatically.</td></tr>';
+  else rows.forEach(e=>{const tr=document.createElement('tr'),d=e.at?new Date(e.at):null;tr.innerHTML=`<td>${d&&!Number.isNaN(d.getTime())?dateFmt(d.toISOString().slice(0,10))+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'—'}</td><td class="audit-action">${escapeHtml(auditActionLabel(e.type))}</td><td><div class="audit-detail">${escapeHtml(auditDetails(e))}</div></td>`;tbody.appendChild(tr);});
+  document.getElementById('auditSummary').innerHTML=`Encrypted audit trail · <strong>${auditLog.length}</strong> event${auditLog.length===1?'':'s'} recorded · <strong>${voidedBills.length}</strong> voided bill${voidedBills.length===1?'':'s'} preserved.`;
+  document.getElementById('auditModal').classList.add('open');
+}
+function closeAuditLog(){document.getElementById('auditModal').classList.remove('open');}
+
+function arrayBufferToB64(buf){return bytesToB64(new Uint8Array(buf));}
+function b64ToArrayBuffer(b64){const u=b64ToBytes(b64);return u.buffer.slice(u.byteOffset,u.byteOffset+u.byteLength);}
+async function decryptStateWithSessionKey(blob){const iv=b64ToBytes(blob.iv);const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},sessionKey,b64ToBytes(blob.ct));return JSON.parse(new TextDecoder().decode(plain));}
+async function exportEncryptedBackup(){
+  try{
+    await saveChain; await migrateLegacyAttachments();
+    const stateBlob=JSON.parse(localStorage.getItem(ENCRYPTED_STATE_KEY)||'null'); if(!stateBlob)throw new Error('No encrypted state');
+    const attachments=await listRawAttachments();
+    const packed=[];
+    for(const r of attachments){const v=r.value;if(!v?.encrypted)continue;packed.push({id:r.id,name:v.name,type:v.type,size:v.size||0,version:v.version||1,iv:v.iv,ct:arrayBufferToB64(v.ct instanceof ArrayBuffer?v.ct:v.ct.buffer)});}
+    const backup={format:'electricity-split-backup-v1',appVersion:APP_VERSION,schemaVersion:DATA_SCHEMA_VERSION,createdAt:new Date().toISOString(),encryptedState:stateBlob,attachments:packed};
+    const text=JSON.stringify(backup),verify=JSON.parse(text); await decryptStateWithSessionKey(verify.encryptedState);
+    if(verify.attachments.length!==packed.length)throw new Error('Backup verification failed');
+    const blob=new Blob([text],{type:'application/json'}),a=document.createElement('a'),now=new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+    a.href=URL.createObjectURL(blob);a.download=`Electricity_Split_Backup_${stamp}.esbackup`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    localStorage.setItem(LAST_BACKUP_KEY,new Date().toISOString());logAudit('backup_created',{attachments:packed.length});queueEncryptedSave();updateBackupStatus();alert(`Encrypted backup verified successfully.\nActive bills: ${bills.length}\nVoided bills: ${voidedBills.length}\nPayments: ${payments.length}\nVacations: ${vacations.length}\nAttachments: ${packed.length}`);
+  }catch(e){console.error(e);alert('Could not create a verified encrypted backup. No data was changed.');}
+}
+function chooseRestoreBackup(){document.getElementById('restoreBackupInput').value='';document.getElementById('restoreBackupInput').click();}
+async function restoreBackupSelected(event){
+  const file=event.target.files?.[0];if(!file)return;
+  try{
+    const backup=JSON.parse(await file.text());if(backup?.format!=='electricity-split-backup-v1'||!backup.encryptedState||!Array.isArray(backup.attachments))throw new Error('Unsupported backup');
+    const password=await openReauthModal('unlock this backup',async candidate=>{try{await decryptBlob(candidate,backup.encryptedState);return true;}catch(e){return false;}});if(!password)return;
+    const opened=await decryptBlob(password,backup.encryptedState),state=opened.state;
+    if(!state||!Array.isArray(state.bills)||!Array.isArray(state.vacations)||!Array.isArray(state.payments))throw new Error('Invalid backup state');
+    const records=backup.attachments.map(a=>{if(!a.id||!a.iv||!a.ct)throw new Error('Invalid attachment entry');return{id:String(a.id),value:{encrypted:true,version:a.version||1,iv:a.iv,ct:b64ToArrayBuffer(a.ct),name:a.name||'attachment',type:a.type||'application/octet-stream',size:Number(a.size)||0}};});
+    // Validate attachment decryption before showing restore confirmation.
+    const oldKey=sessionKey;sessionKey=opened.key;try{for(const r of records)await decryptAttachmentPayload(r.id,r.value);}finally{sessionKey=oldKey;}
+    pendingRestore={backup,state,opened,records};
+    document.getElementById('restorePreviewStats').innerHTML=`<div class="restore-stat"><span>Active Bills</span><strong>${state.bills.length}</strong></div><div class="restore-stat"><span>Voided Bills</span><strong>${Array.isArray(state.voidedBills)?state.voidedBills.length:0}</strong></div><div class="restore-stat"><span>Payments</span><strong>${state.payments.length}</strong></div><div class="restore-stat"><span>Vacations</span><strong>${state.vacations.length}</strong></div><div class="restore-stat"><span>Attachments</span><strong>${records.length}</strong></div>`;
+    document.getElementById('restorePreviewModal').classList.add('open');
+  }catch(e){console.error(e);alert('This backup could not be validated or decrypted. Current data was not changed.');}
+}
+function cancelRestorePreview(){pendingRestore=null;document.getElementById('restorePreviewModal').classList.remove('open');}
+async function confirmRestoreBackup(){
+  if(!pendingRestore)return;
+  const r=pendingRestore;document.getElementById('restorePreviewModal').classList.remove('open');
+  try{
+    localStorage.setItem(RESTORE_TEMP_KEY,JSON.stringify(r.backup.encryptedState));
+    await replaceAttachmentRecords(r.records);
+    localStorage.setItem(ENCRYPTED_STATE_KEY,localStorage.getItem(RESTORE_TEMP_KEY));localStorage.removeItem(RESTORE_TEMP_KEY);
+    bills=r.state.bills;vacations=r.state.vacations;payments=r.state.payments.map(normalizePayment).filter(Boolean);voidedBills=Array.isArray(r.state.voidedBills)?r.state.voidedBills:[];auditLog=Array.isArray(r.state.auditLog)?r.state.auditLog:[];
+    sessionKey=r.opened.key;sessionSalt=r.opened.salt;logAudit('backup_restored',{backupCreatedAt:r.backup.createdAt||null,attachments:r.records.length});await encryptStateNow();
+    pendingRestore=null;renderAll();updateBackupStatus();updateStorageStatus();alert('Backup restored successfully.');
+  }catch(e){console.error(e);pendingRestore=null;localStorage.removeItem(RESTORE_TEMP_KEY);alert('Restore failed. The backup was validated first, but the replacement could not be completed.');}
+}
+function updateBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;const raw=localStorage.getItem(LAST_BACKUP_KEY);if(!raw){el.textContent='Last backup: Not yet';return;}const d=new Date(raw);el.textContent=`Last backup: ${reportDateFmt(d.toISOString().slice(0,10))} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+async function checkAttachmentIntegrity(){
+  try{
+    const rows=await listRawAttachments(),valid=new Set([...bills,...voidedBills].map(b=>String(b.id)));
+    const orphan=rows.filter(r=>!valid.has(String(r.id)));
+    if(orphan.length){
+      const banner=document.getElementById('integrityBanner');
+      if(banner){banner.classList.add('show');banner.innerHTML+=(banner.innerHTML?' <br>':'')+`<strong>Attachment warning:</strong> ${orphan.length} attachment file${orphan.length===1?'':'s'} are not linked to an active or voided bill.`;}
+    }
+  }catch(e){}
+}
+async function updateStorageStatus(){const el=document.getElementById('storageStatus');if(!el)return;try{if(!navigator.storage?.estimate){el.textContent='Storage: available';return;}const e=await navigator.storage.estimate(),pct=e.quota?e.usage/e.quota*100:0;el.textContent=`Storage: ${pct.toFixed(1)}% used`;el.classList.toggle('storage-warn',pct>=80);}catch(e){el.textContent='Storage: unavailable';}}
+function runIntegrityChecks(){
+  const issues=[];let total=0,shares=0;
+  const months=new Set();
+  bills.forEach((b,i)=>{if(!(Number(b.amount)>0))issues.push(`${b.label||'Bill'} has an invalid amount.`);if(!b.start||!b.end||b.end<b.start)issues.push(`${b.label||'Bill'} has invalid dates.`);const m=billMonthKey(b);if(months.has(m))issues.push(`Duplicate bill month: ${m}.`);months.add(m);const sp=billSplit(b,i),tc=toCents(b.amount),sc=toCents(sp.s)+toCents(sp.a);if(tc!==sc)issues.push(`${b.label}: shares do not equal bill total.`);total+=tc;shares+=sc;});
+  if(total!==shares)issues.push('Overall Salah + Alaa shares do not equal total bills.');
+  const alloc=fifoAllocations(),paymentTotal=activePayments().reduce((x,p)=>x+toCents(p.amount),0);let applied=0;for(const x of alloc.byBill.values()){if(x.overallPaid+x.overallRemaining!==x.total)issues.push('A bill FIFO allocation does not reconcile.');applied+=x.overallPaid;}if(applied+alloc.overallCredit!==paymentTotal)issues.push('FIFO allocated payments plus credit do not equal active payments.');
+  const l=paymentLedger();if(Math.min(l.paidTotal,l.totalC)+l.overallOverpayment!==l.paidTotal)issues.push('Payment ledger does not reconcile.');
+  const banner=document.getElementById('integrityBanner');if(banner){if(issues.length){banner.classList.add('show');banner.innerHTML=`<strong>Data Integrity Warning</strong><br>${issues.map(x=>escapeHtml(x)).join('<br>')}`;}else{banner.classList.remove('show');banner.innerHTML='';}}
+  return issues;
+}
+async function setupServiceWorkerUpdate(){
+  if(!('serviceWorker'in navigator)||!location.protocol.startsWith('http'))return;
+  try{swRegistration=await navigator.serviceWorker.register('sw.js');if(swRegistration.waiting)showUpdateBanner();swRegistration.addEventListener('updatefound',()=>{const w=swRegistration.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)showUpdateBanner();});});navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());}catch(e){}
+}
+function showUpdateBanner(){document.getElementById('updateBanner')?.classList.add('show');}
+function applyAppUpdate(){if(swRegistration?.waiting)swRegistration.waiting.postMessage({type:'SKIP_WAITING'});else location.reload();}
+
 function copySummary() {
   const t=totals(), l=paymentLedger();
   const settlement=l.interDebt>0 ? `${l.debtor} owes ${l.creditor}: ${money(fromCents(l.interDebt))}` : 'Internal settlement: SAR 0.00';
@@ -1187,11 +1465,14 @@ Alaa paid: ${money(fromCents(l.aPaid))}
 ${settlement}
 Overall overpayment: ${money(fromCents(l.overallOverpayment))}
 Payments: ${activePayments().length} active · ${payments.filter(p=>p.voided).length} voided
-Vacations: ${vacations.length}`;
+Vacations: ${vacations.length}
+Voided bills: ${voidedBills.length}
+Audit events: ${auditLog.length}`;
   navigator.clipboard?.writeText(txt).then(()=>alert('Summary copied.'));
 }
 
 function exportCSV() {
+  if(!confirm('CSV exports are not encrypted after download. Continue?')) return;
   let rows=[['BILLS'],['Bill','From','To','Days','Amount SAR','Paid SAR','Remaining SAR','Payment Status','Salah SAR','Alaa SAR','Split']];
   const billAlloc=fifoAllocations();
   bills.forEach((b,i)=>{const sp=billSplit(b,i),x=billAlloc.byBill.get(String(b.id)),st=billPaymentStatus(x);rows.push([b.label,b.start,b.end,sp.days,Number(b.amount).toFixed(2),fromCents(x?.overallPaid||0).toFixed(2),fromCents(x?.overallRemaining??toCents(b.amount)).toFixed(2),st.label,sp.s.toFixed(2),sp.a.toFixed(2),splitLabel(b,i)])});
@@ -1204,8 +1485,9 @@ function exportCSV() {
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Electricity_Bills_and_Payments_Salah_Alaa.csv'; a.click(); URL.revokeObjectURL(a.href);
 }
 
-function renderAll() { renderKPIs(); renderStory(); renderChart(); populateBillFilterOptions(); renderTable(); renderPayments(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
-window.addEventListener('load',()=>{document.getElementById('unlockPassword')?.focus(); const pd=document.getElementById('paymentDate'); if(pd&&!pd.value) pd.value=todayISO();});
+function renderAll() { renderKPIs(); renderStory(); renderChart(); populateBillFilterOptions(); renderTable(); renderPayments(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); runIntegrityChecks(); updateStorageStatus(); }
+window.addEventListener('load',()=>{document.getElementById('unlockPassword')?.focus();const pd=document.getElementById('paymentDate');if(pd&&!pd.value)pd.value=todayISO();updateBackupStatus();});
+window.addEventListener('beforeunload',e=>{if(savePending){e.preventDefault();e.returnValue='';}});
 </script>
 </body>
 </html>
