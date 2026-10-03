@@ -351,7 +351,7 @@ async function decryptBlob(password,blob){
 async function encryptStateNow(){
   if(!sessionKey||!sessionSalt) return;
   const iv=crypto.getRandomValues(new Uint8Array(12));
-  const state={bills,vacations,payments,legacyPaid,version:5};
+  const state={bills,vacations,payments,legacyPaid:0,version:6};
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},sessionKey,new TextEncoder().encode(JSON.stringify(state)));
   localStorage.setItem(ENCRYPTED_STATE_KEY,JSON.stringify({salt:bytesToB64(sessionSalt),iv:bytesToB64(iv),ct:bytesToB64(new Uint8Array(ct))}));
 }
@@ -374,10 +374,10 @@ async function unlockApp(){
     vacations=state.vacations;
     const hadPayments=Array.isArray(state.payments);
     payments=hadPayments ? state.payments.map(normalizePayment).filter(Boolean) : [];
-    legacyPaid=Number(state.legacyPaid)||0;
-    if(!hadPayments && Number(state.paid)>0) legacyPaid=Math.round(Number(state.paid)*100)/100;
+    legacyPaid=0;
+    // v6 migration: discard the obsolete pre-ledger Paid total; only named Payment records count.
     sessionPassword=password; sessionKey=opened.key; sessionSalt=opened.salt;
-    if(!blob || !hadPayments || Number(state.version)<5) await encryptStateNow();
+    if(!blob || !hadPayments || Number(state.version)<6 || Number(state.legacyPaid)>0 || Number(state.paid)>0) await encryptStateNow();
     ['salahAlaaElectricityBills','salahAlaaVacations','salahAlaaPaidTotal','salahAlaaDataVersion'].forEach(k=>localStorage.removeItem(k));
     document.getElementById('lockScreen').style.display='none';
     document.getElementById('appRoot').hidden=false;
@@ -433,8 +433,8 @@ function paidCentsBy(person){return activePayments().filter(p=>p.person===person
 function paymentLedger(){
   const t=totals();
   const totalC=toCents(t.total), sShare=toCents(t.s), aShare=toCents(t.a);
-  const sPaid=paidCentsBy('Salah'), aPaid=paidCentsBy('Alaa'), legacy=toCents(legacyPaid);
-  const paidTotal=sPaid+aPaid+legacy;
+  const sPaid=paidCentsBy('Salah'), aPaid=paidCentsBy('Alaa'), legacy=0;
+  const paidTotal=sPaid+aPaid;
   const outstanding=Math.max(0,totalC-paidTotal);
   const overallOverpayment=Math.max(0,paidTotal-totalC);
   const sBalance=sPaid-sShare, aBalance=aPaid-aShare;
@@ -541,8 +541,7 @@ function renderKPIs() {
   if(l.outstanding>0) settlement.push(`Outstanding to electricity: <strong>${money(fromCents(l.outstanding))}</strong>`);
   else settlement.push('<strong>Electricity fully paid</strong>');
   if(l.overallOverpayment>0) settlement.push(`Overall overpayment: <strong>${money(fromCents(l.overallOverpayment))}</strong>`);
-  if(l.legacy>0) settlement.push(`Unallocated legacy payment: <strong>${money(fromCents(l.legacy))}</strong>`);
-  document.getElementById('settlementSummary').innerHTML=settlement.join('<br>');
+    document.getElementById('settlementSummary').innerHTML=settlement.join('<br>');
 
   const remFoot=document.getElementById('remainingFoot');
   if(remFoot) remFoot.textContent=l.overallOverpayment>0 ? `Overall overpayment ${money(fromCents(l.overallOverpayment))}` : 'Still due to electricity';
@@ -712,10 +711,7 @@ function renderPayments(){
     <div class="payment-summary-chip"><span>Alaa Paid</span><strong>${money(fromCents(l.aPaid))}</strong></div>
     <div class="payment-summary-chip"><span>Active Payments Total</span><strong>${money(fromCents(l.sPaid+l.aPaid))}</strong></div>`;
   const warning=document.getElementById('legacyPaymentWarning');
-  if(warning){
-    if(l.legacy>0){warning.style.display='block';warning.innerHTML=`A legacy paid total of <strong>${money(fromCents(l.legacy))}</strong> exists but is not assigned to Salah or Alaa. It is counted toward Total Paid but excluded from their personal settlement.`;}
-    else warning.style.display='none';
-  }
+  if(warning) warning.style.display='none';
 }
 function escapeHtml(value){
   return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
