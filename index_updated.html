@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Electricity Split — Salah & Alaa</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#08111f">
+<style>
+:root {
+  --bg:#08111f; --panel:#0e1a2b; --panel2:#132238; --text:#eef6ff; --muted:#9fb0c7;
+  --line:rgba(255,255,255,.09); --accent:#5eead4; --accent2:#60a5fa; --warn:#fbbf24;
+  --salah:#5eead4; --alaa:#60a5fa; --good:#34d399; --danger:#fb7185;
+  --shadow:0 18px 55px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;background:
+radial-gradient(1200px 500px at 8% -10%,rgba(94,234,212,.14),transparent 55%),
+radial-gradient(900px 480px at 100% 0%,rgba(96,165,250,.15),transparent 55%),var(--bg);
+color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:1280px;margin:auto;padding:28px}
+.topbar{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06111d;font-size:24px;box-shadow:0 10px 28px rgba(94,234,212,.2)}
+h1{font-size:26px;margin:0;letter-spacing:-.02em} .sub{color:var(--muted);font-size:13px;margin-top:3px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button,.btn{border:1px solid var(--line);background:#132238;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+button:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.18)}
+.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06111d;border:none}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}
+.card{background:linear-gradient(180deg,rgba(19,34,56,.92),rgba(14,26,43,.92));border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.kpi-label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.kpi-value{font-size:28px;font-weight:850;margin-top:7px;letter-spacing:-.025em}
+.kpi-foot{color:var(--muted);font-size:12px;margin-top:7px}
+.hero{grid-template-columns:1.15fr .85fr;margin-bottom:16px}
+.split-wrap{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center}
+.donut{width:190px;height:190px;border-radius:50%;background:conic-gradient(var(--salah) 0 50%,var(--alaa) 50% 100%);position:relative;margin:auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.donut:after{content:"";position:absolute;inset:24px;border-radius:50%;background:var(--panel);border:1px solid var(--line)}
+.donut-center{position:absolute;inset:0;display:grid;place-items:center;z-index:2;text-align:center}
+.donut-center strong{font-size:26px} .donut-center span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.person{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;background:rgba(255,255,255,.02)}
+.p-left{display:flex;gap:10px;align-items:center} .dot{width:11px;height:11px;border-radius:50%}
+.person small{color:var(--muted)} .amt{font-size:20px;font-weight:800}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px;gap:12px}
+.section-title h2{font-size:17px;margin:0} .section-title p{margin:0;color:var(--muted);font-size:12px}
+.chart{height:230px;display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid var(--line);padding:12px 4px 0;overflow:hidden}
+.bar-wrap{flex:1;min-width:18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{width:100%;max-width:36px;border-radius:9px 9px 2px 2px;background:linear-gradient(180deg,var(--accent2),rgba(96,165,250,.35));min-height:4px;position:relative}
+.bar:hover:after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#020617;color:white;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;z-index:3}
+.bar-lbl{font-size:10px;color:var(--muted);margin-top:8px;writing-mode:vertical-rl;transform:rotate(180deg);height:60px;overflow:hidden}
+.table-card{padding:0;overflow:hidden}
+.table-head{padding:18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.search{background:#081425;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 11px;min-width:230px}
+table{width:100%;border-collapse:collapse} th,td{padding:13px 15px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;background:rgba(255,255,255,.015)} tr:hover td{background:rgba(255,255,255,.018)}
+.money{font-variant-numeric:tabular-nums;font-weight:700} .pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--line);background:rgba(94,234,212,.07);color:#b7fff3}
+.panel-row{grid-template-columns:1fr 1fr;margin-top:16px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px} label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+input,select{width:100%;background:#081425;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 11px;outline:none}
+input:focus{border-color:var(--accent2)} .full{grid-column:1/-1}
+.info{padding:12px;border-radius:12px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);color:#d7e8ff;font-size:12px;line-height:1.6}
+.story{display:grid;gap:10px} .story-item{padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02);font-size:13px;color:#dce8f8}
+.footer{color:var(--muted);font-size:11px;text-align:center;margin:18px 0 4px}
+.attachment-btn{padding:6px 9px;border-radius:9px;font-size:11px;white-space:nowrap}
+.calendar-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.summary-chip{padding:8px 10px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:12px;color:#dce8f8}
+.calendar-panel{display:none;margin-top:12px}.calendar-panel.open{display:block}.year-block{margin:14px 0 22px}.year-title{font-size:20px;font-weight:850;margin:0 0 12px}.months-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.month-card{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02);padding:10px}.month-title{font-weight:800;font-size:12px;margin-bottom:8px}.week,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.week span{font-size:8px;color:var(--muted);text-align:center}.day{aspect-ratio:1;min-height:21px;display:grid;place-items:center;border-radius:6px;font-size:9px;color:#d8e5f5;background:rgba(255,255,255,.02)}.day.blank{background:transparent}.day.salah{background:rgba(94,234,212,.28);color:#d5fff9;font-weight:850}.day.alaa{background:rgba(96,165,250,.30);color:#e1eeff;font-weight:850}.day.both{background:rgba(251,191,36,.30);color:#fff2b8;font-weight:850}
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:8px}.cal-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}.cal-legend .s{background:rgba(94,234,212,.65)}.cal-legend .a{background:rgba(96,165,250,.7)}.cal-legend .b{background:rgba(251,191,36,.7)}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.82);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}.modal.open{display:flex}.modal-box{width:min(1000px,96vw);height:min(820px,90vh);background:#0b1626;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.55);display:flex;flex-direction:column}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}.modal-body{flex:1;min-height:0;display:grid;place-items:center;background:#050b14}.modal-body iframe,.modal-body img{width:100%;height:100%;border:0;object-fit:contain}.modal-empty{padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:900px){.months-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.months-grid{grid-template-columns:1fr}.calendar-summary{display:grid}}
+
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.hero,.panel-row{grid-template-columns:1fr}.split-wrap{grid-template-columns:1fr}}
+@media(max-width:600px){.app{padding:14px}.kpis{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}table{min-width:850px}.table-card{overflow:auto}}
+@media print{body{background:#fff;color:#111}.actions,.form-card,.search{display:none!important}.card{box-shadow:none;background:#fff;color:#111;border:1px solid #ddd}.sub,.kpi-label,.kpi-foot,.section-title p,th{color:#555}}
+
+.lock-screen{min-height:100vh;display:grid;place-items:center;padding:22px;background:
+radial-gradient(800px 420px at 20% 10%,rgba(94,234,212,.14),transparent 60%),
+radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var(--bg)}
+.lock-card{width:min(440px,94vw);background:linear-gradient(180deg,rgba(19,34,56,.96),rgba(14,26,43,.98));border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.lock-mark{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06111d;font-size:26px;margin-bottom:16px}
+.lock-card h1{font-size:24px;margin:0 0 6px}.lock-copy{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:18px}
+.lock-row{display:grid;gap:10px}.lock-error{color:#fecdd3;font-size:12px;min-height:18px;margin-top:8px}
+.action-cell{display:flex;gap:6px;flex-wrap:wrap}.mini-btn{padding:6px 8px;border-radius:8px;font-size:10px}.danger-mini{border-color:rgba(251,113,133,.32);color:#fecdd3;background:rgba(251,113,133,.08)}
+.locked-pill{font-size:9px;padding:3px 6px;border-radius:999px;color:#c7d2fe;background:rgba(99,102,241,.14);border:1px solid rgba(129,140,248,.2);margin-left:6px}
+
+</style>
+</head>
+<body>
+
+<div id="lockScreen" class="lock-screen">
+  <section class="lock-card">
+    <div class="lock-mark">⚡</div>
+    <h1>Electricity Split</h1>
+    <div class="lock-copy">Your bill data is encrypted on this device. Enter the app password to unlock the dashboard.</div>
+    <div class="lock-row">
+      <input id="unlockPassword" type="password" placeholder="App password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter') unlockApp()">
+      <button class="primary" onclick="unlockApp()">Unlock Dashboard</button>
+      <button type="button" onclick="toggleUnlockPassword()" style="margin-top:8px">Show / Hide Password</button>
+    </div>
+    <div id="lockError" class="lock-error"></div>
+  </section>
+</div>
+
+<div id="appRoot" class="app" hidden>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">⚡</div>
+      <div><h1>Electricity Split Dashboard</h1><div class="sub">Salah & Alaa · Shared Meter · Premium Edition</div></div>
+    </div>
+    <div class="actions">
+      <button onclick="copySummary()">Copy Summary</button>
+      <button onclick="exportCSV()">Export CSV</button>
+      <button onclick="window.print()">Print</button>
+      <button onclick="lockApp()">Logout</button>
+      <button class="primary" onclick="document.getElementById('addBill').scrollIntoView({behavior:'smooth'})">+ Add Bill</button>
+    </div>
+  </div>
+
+  <section class="grid kpis">
+    <div class="card"><div class="kpi-label">Total</div><div id="grandTotal" class="kpi-value">SAR 4,926.40</div><div class="kpi-foot"><span id="billCount">15</span> recorded bills</div></div>
+    <div class="card"><div class="kpi-label">Paid</div><div id="paidTotal" class="kpi-value">SAR 0.00</div><div class="kpi-foot">Amount paid from the full bill total</div></div>
+    <div class="card"><div class="kpi-label">Remaining</div><div id="remainingTotal" class="kpi-value">SAR 4,926.40</div><div class="kpi-foot">Total − Paid</div></div>
+  </section>
+
+  <section class="grid hero">
+    <div class="card">
+      <div class="section-title"><div><h2>Split Overview</h2><p>Automatically adjusted for vacations</p></div><span class="pill" id="splitStatus">Auto</span></div>
+      <div class="split-wrap">
+        <div class="donut"><div class="donut-center"><div><strong id="donutTotal">4,926.40</strong><span>SAR TOTAL</span></div></div></div>
+        <div>
+          <div class="person"><div class="p-left"><span class="dot" style="background:var(--salah)"></span><div><strong>Salah</strong><br><small id="salahPct">—</small></div></div><div class="amt" id="salahHero">SAR 2,463.20</div></div>
+          <div class="person"><div class="p-left"><span class="dot" style="background:var(--alaa)"></span><div><strong>Alaa</strong><br><small id="alaaPct">—</small></div></div><div class="amt" id="alaaHero">SAR 2,463.20</div></div>
+          <div class="info">Vacation-aware: enter a person, start date, and end date. Every bill is recalculated automatically by day. If one person is away, the other pays 100% for those days; if both are away, those days remain 50/50.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><div><h2>Bill Story</h2><p>What the data says</p></div></div>
+      <div class="story" id="billStory"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><div><h2>Monthly Cost Trend</h2><p>Bill amount by billing cycle</p></div></div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section class="card table-card" style="margin-top:16px">
+    <div class="table-head">
+      <div><strong>Bill History</strong><div class="sub">All bills preloaded from your records</div></div>
+      <input id="search" class="search" placeholder="Search month or date…" oninput="renderTable()" />
+    </div>
+    <table>
+      <thead><tr><th>Bill</th><th>Period</th><th>Days</th><th>Amount</th><th>Salah</th><th>Alaa</th><th>Split</th><th>Attachment</th><th>Actions</th></tr></thead>
+      <tbody id="billRows"></tbody>
+    </table>
+  </section>
+
+  <section class="grid panel-row">
+    <div id="addBill" class="card form-card">
+      <div class="section-title"><div><h2>Add Another Bill</h2><p>Stored locally in this browser</p></div></div>
+      <div class="form-grid">
+        <div class="full"><label>Bill Month</label><input id="label" type="month"></div>
+        <div><label>From</label><input id="start" type="date"></div>
+        <div><label>To</label><input id="end" type="date"></div>
+        <div class="full"><label>Bill Amount (SAR)</label><input id="amount" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="full"><label>Bill Attachment (required · PDF/JPG/PNG)</label><input id="billAttachment" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+        <div class="full"><button class="primary" style="width:100%" onclick="addBill()">Save Bill</button></div>
+      </div>
+    </div>
+    <div class="card form-card">
+      <div class="section-title"><div><h2>Payment Tracker</h2><p>Total / Paid / Remaining</p></div></div>
+      <div class="form-grid">
+        <div class="full"><label>Total Paid So Far (SAR)</label><input id="paidInput" type="number" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="full"><button class="primary" style="width:100%" onclick="savePaid()">Update Paid</button></div>
+      </div>
+      <div class="info" style="margin-top:12px">Paid is the amount already paid from all bills combined. Remaining updates automatically as <strong>Total − Paid</strong>.</div>
+    </div>
+  </section>
+
+  <section class="grid panel-row">
+    <div class="card form-card">
+      <div class="section-title"><div><h2>Add Vacation</h2><p>Recalculates all affected bills automatically</p></div></div>
+      <div class="form-grid">
+        <div class="full"><label>Person</label><select id="vacPerson"><option value="Salah">Salah</option><option value="Alaa">Alaa</option></select></div>
+        <div><label>From</label><input id="vacStart" type="date"></div>
+        <div><label>To</label><input id="vacEnd" type="date"></div>
+        <div class="full"><button class="primary" style="width:100%" onclick="addVacation()">Add Vacation</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><div><h2>Vacations</h2><p>Active calculation inputs</p></div></div>
+      <div class="story" id="vacationList"></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="section-title">
+      <div><h2>Vacation Calendar</h2><p>Compact by default — open only when you need the full 2025–2026 view</p></div>
+      <button id="calendarToggle" onclick="toggleCalendar()">Show Calendar</button>
+    </div>
+    <div id="calendarSummary" class="calendar-summary"></div>
+    <div class="cal-legend"><span><i class="s"></i>Salah vacation</span><span><i class="a"></i>Alaa vacation</span><span><i class="b"></i>Both</span></div>
+    <div id="calendarPanel" class="calendar-panel"><div id="vacationCalendar"></div></div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="section-title"><div><h2>Calculation Logic</h2><p>Fully automatic</p></div></div>
+    <div class="story">
+      <div class="story-item">👥 <strong>Both available:</strong> each pays 50% of that day's cost.</div>
+      <div class="story-item">✈️ <strong>Only one person on vacation:</strong> the other person pays 100% for those days.</div>
+      <div class="story-item">🌍 <strong>Both on vacation:</strong> those days remain 50/50.</div>
+      <div class="story-item">⚙️ <strong>Automatic:</strong> changing vacations immediately recalculates every affected bill and all totals.</div>
+    </div>
+  </section>
+
+  <div class="footer">Chrome/PWA dashboard · Bill data is encrypted locally · Attachments stay on this device · App code can update without replacing local data.</div>
+</div>
+
+
+<div id="editBillModal" class="modal" onclick="if(event.target===this) closeEditBillModal()">
+  <div class="modal-box" style="width:min(520px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>Edit Bill</strong><button onclick="closeEditBillModal()">✕</button></div>
+    <div style="padding:16px">
+      <div class="form-grid">
+        <div class="full"><label>Bill Month</label><input id="editBillMonth" type="month"></div>
+        <div><label>From</label><input id="editBillStart" type="date"></div>
+        <div><label>To</label><input id="editBillEnd" type="date"></div>
+        <div class="full"><label>Bill Amount (SAR)</label><input id="editBillAmount" type="number" step="0.01" min="0"></div>
+        <div><button style="width:100%" onclick="closeEditBillModal()">Cancel</button></div>
+        <div><button class="primary" style="width:100%" onclick="saveBillEdit()">Save Changes</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="attachmentModal" class="modal" onclick="if(event.target===this) closeAttachmentPreview()">
+  <div class="modal-box">
+    <div class="modal-head"><strong id="attachmentTitle">Bill Attachment</strong><button onclick="closeAttachmentPreview()">Close</button></div>
+    <div id="attachmentBody" class="modal-body"><div class="modal-empty">No attachment selected.</div></div>
+  </div>
+</div>
+
+<script>
+const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"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"};
+const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
+const AAD_TEXT='electricity-split-v1';
+let bills=[], vacations=[], paid=0;
+let sessionPassword='', sessionKey=null, sessionSalt=null;
+let saveChain=Promise.resolve();
+
+const bytesToB64 = bytes => btoa(String.fromCharCode(...bytes));
+const b64ToBytes = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+function canonicalizePassword(value){
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\u2060\uFEFF\u200E\u200F\u061C]/g,'')
+    .replace(/[٠-٩]/g,d=>'0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+    .replace(/[۰-۹]/g,d=>'0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)])
+    .trim();
+}
+function toggleUnlockPassword(){
+  const input=document.getElementById('unlockPassword');
+  input.type=input.type==='password'?'text':'password';
+  input.focus();
+}
+
+async function deriveKey(password,salt){
+  password=canonicalizePassword(password);
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:180000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function decryptBlob(password,blob){
+  const salt=b64ToBytes(blob.salt), iv=b64ToBytes(blob.iv);
+  const key=await deriveKey(password,salt);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},key,b64ToBytes(blob.ct));
+  return {state:JSON.parse(new TextDecoder().decode(plain)),key,salt};
+}
+async function encryptStateNow(){
+  if(!sessionKey||!sessionSalt) return;
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const state={bills,vacations,paid,version:4};
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},sessionKey,new TextEncoder().encode(JSON.stringify(state)));
+  localStorage.setItem(ENCRYPTED_STATE_KEY,JSON.stringify({salt:bytesToB64(sessionSalt),iv:bytesToB64(iv),ct:bytesToB64(new Uint8Array(ct))}));
+}
+function queueEncryptedSave(){
+  saveChain=saveChain.then(()=>encryptStateNow()).catch(()=>{});
+}
+async function unlockApp(){
+  const input=document.getElementById('unlockPassword');
+  const error=document.getElementById('lockError');
+  const password=canonicalizePassword(input.value);
+  if(!password){error.textContent='Enter the app password.';return;}
+  error.textContent='Unlocking…';
+  try{
+    let blob;
+    try{blob=JSON.parse(localStorage.getItem(ENCRYPTED_STATE_KEY)||'null');}catch(e){blob=null;}
+    const opened=await decryptBlob(password,blob||SEED_ENCRYPTED);
+    const state=opened.state;
+    if(!state||!Array.isArray(state.bills)||!Array.isArray(state.vacations)) throw new Error('Invalid state');
+    bills=state.bills; vacations=state.vacations; paid=Number(state.paid)||0;
+    sessionPassword=password; sessionKey=opened.key; sessionSalt=opened.salt;
+    if(!blob) await encryptStateNow();
+    ['salahAlaaElectricityBills','salahAlaaVacations','salahAlaaPaidTotal','salahAlaaDataVersion'].forEach(k=>localStorage.removeItem(k));
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('appRoot').hidden=false;
+    input.value=''; error.textContent='';
+    renderAll();
+    if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }catch(e){
+    error.textContent='Incorrect password.';
+    input.select();
+  }
+}
+function lockApp(){
+  sessionPassword='';sessionKey=null;sessionSalt=null;bills=[];vacations=[];paid=0;
+  document.getElementById('appRoot').hidden=true;
+  document.getElementById('lockScreen').style.display='grid';
+  document.getElementById('unlockPassword').focus();
+}
+function verifyAdmin(action='make this change'){
+  const entered=prompt(`Enter the app password to ${action}:`);
+  if(entered===null) return false;
+  const candidate=canonicalizePassword(entered);
+  if(candidate!==canonicalizePassword(sessionPassword)){alert('Incorrect password.');return false;}
+  return true;
+}
+
+
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthToLabel(value){
+  if(!/^\d{4}-\d{2}$/.test(value||'')) return '';
+  const [y,m]=value.split('-').map(Number);
+  return `${MONTH_NAMES[m-1]} ${y}`;
+}
+function labelToMonth(label,fallbackDate=''){
+  const m=String(label||'').match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if(m){
+    const idx=MONTH_NAMES.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());
+    if(idx>=0) return `${m[2]}-${String(idx+1).padStart(2,'0')}`;
+  }
+  return /^\d{4}-\d{2}/.test(fallbackDate||'') ? fallbackDate.slice(0,7) : '';
+}
+let pendingEditBillId=null;
+
+const money = n => 'SAR ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const dateFmt = s => new Date(s+'T12:00:00').toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+const daysInclusive = (a,b) => Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)+1;
+const isoDay = d => d.toISOString().slice(0,10);
+const addDays = (s,n) => { const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return isoDay(d); };
+
+function isOnVacation(person, day) {
+  return vacations.some(v => v.person===person && day>=v.start && day<=v.end);
+}
+
+function pennySplit(amount, index) {
+  const cents = Math.round(Number(amount)*100);
+  const base = Math.floor(cents/2);
+  const odd = cents - base*2;
+  const salah = base + (odd && index % 2 === 0 ? 1 : 0);
+  return [salah/100, (cents-salah)/100];
+}
+
+function billSplit(b,index) {
+  const days=daysInclusive(b.start,b.end);
+  let salahWeight=0, alaaWeight=0, affected=false;
+  for(let i=0;i<days;i++) {
+    const day=addDays(b.start,i);
+    const sv=isOnVacation('Salah',day), av=isOnVacation('Alaa',day);
+    if(sv || av) affected=true;
+    if(sv && !av) { alaaWeight += 1; }
+    else if(av && !sv) { salahWeight += 1; }
+    else { salahWeight += .5; alaaWeight += .5; }
+  }
+  if(!affected) {
+    const [s,a]=pennySplit(b.amount,index);
+    return {s,a,days,affected:false,salahWeight:days/2,alaaWeight:days/2};
+  }
+  const cents=Math.round(Number(b.amount)*100);
+  const rawS=Number(b.amount)*(salahWeight/days);
+  const sCents=Math.max(0,Math.min(cents,Math.round(rawS*100)));
+  const s=sCents/100, a=(cents-sCents)/100;
+  return {s,a,days,affected:true,salahWeight,alaaWeight};
+}
+
+function totals() {
+  let total=0,s=0,a=0;
+  bills.forEach((b,i)=>{ total+=Number(b.amount); const sp=billSplit(b,i); s+=sp.s; a+=sp.a; });
+  total=Math.round(total*100)/100; s=Math.round(s*100)/100; a=Math.round(a*100)/100;
+  return {total,s,a,remaining:Math.max(0,Math.round((total-paid)*100)/100)};
+}
+
+function renderKPIs() {
+  const t=totals();
+  document.getElementById('billCount').textContent=bills.length;
+  document.getElementById('grandTotal').textContent=money(t.total);
+  document.getElementById('paidTotal').textContent=money(paid);
+  document.getElementById('remainingTotal').textContent=money(t.remaining);
+  document.getElementById('salahHero').textContent=money(t.s);
+  document.getElementById('alaaHero').textContent=money(t.a);
+  document.getElementById('donutTotal').textContent=t.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const sp=t.total? (t.s/t.total*100):50, ap=100-sp;
+  document.getElementById('salahPct').textContent=sp.toFixed(2)+'% share';
+  document.getElementById('alaaPct').textContent=ap.toFixed(2)+'% share';
+  document.getElementById('splitStatus').textContent=vacations.length ? 'Vacation adjusted' : '50 / 50';
+  document.querySelector('.donut').style.background=`conic-gradient(var(--salah) 0 ${sp}%,var(--alaa) ${sp}% 100%)`;
+  document.getElementById('paidInput').value=paid ? paid.toFixed(2) : '';
+}
+
+function renderStory() {
+  if(!bills.length) return;
+  const highest=[...bills].sort((a,b)=>b.amount-a.amount)[0];
+  const lowest=[...bills].sort((a,b)=>a.amount-b.amount)[0];
+  const avg=bills.reduce((x,b)=>x+Number(b.amount),0)/bills.length;
+  const affected=bills.filter((b,i)=>billSplit(b,i).affected).length;
+  document.getElementById('billStory').innerHTML = `
+    <div class="story-item">📈 Highest bill: <strong>${highest.label}</strong> at <strong>${money(highest.amount)}</strong>.</div>
+    <div class="story-item">📉 Lowest bill: <strong>${lowest.label}</strong> at <strong>${money(lowest.amount)}</strong>.</div>
+    <div class="story-item">✈️ Vacation-adjusted bills: <strong>${affected}</strong>.</div>
+    <div class="story-item">🧮 Average bill: <strong>${money(avg)}</strong> across ${bills.length} billing cycles.</div>`;
+}
+
+function renderChart() {
+  const max=Math.max(...bills.map(b=>Number(b.amount)),1);
+  const chart=document.getElementById('chart'); chart.innerHTML='';
+  bills.forEach(b=>{
+    const wrap=document.createElement('div'); wrap.className='bar-wrap';
+    wrap.innerHTML=`<div class="bar" data-tip="${b.label} · ${money(b.amount)}" style="height:${Math.max(5,(Number(b.amount)/max)*145)}px"></div><div class="bar-lbl">${b.label.replace(' 20','\n')}</div>`;
+    chart.appendChild(wrap);
+  });
+}
+
+function splitLabel(b,index) {
+  const sp=billSplit(b,index);
+  if(!sp.affected) return '50 / 50';
+  const sPct=Number(b.amount)?sp.s/Number(b.amount)*100:50;
+  return `${sPct.toFixed(1)} / ${(100-sPct).toFixed(1)}`;
+}
+
+function renderTable() {
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const tbody=document.getElementById('billRows'); tbody.innerHTML='';
+  bills.filter(b => !q || (b.label+b.start+b.end).toLowerCase().includes(q)).forEach((b)=>{
+    const idx=bills.indexOf(b), sp=billSplit(b,idx);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong>${b.label}</strong><span class="locked-pill">🔒 Locked</span></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${sp.days}</td><td class="money">${money(b.amount)}</td><td class="money">${money(sp.s)}</td><td class="money">${money(sp.a)}</td><td><span class="pill">${splitLabel(b,idx)}</span></td><td><button class="attachment-btn" onclick="previewAttachment('${String(b.id)}')">📎 Preview</button></td><td><div class="action-cell"><button class="mini-btn" onclick="editBill('${String(b.id)}')">Edit</button><button class="mini-btn danger-mini" onclick="deleteBill('${String(b.id)}')">Delete</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderVacations() {
+  const box=document.getElementById('vacationList'); box.innerHTML='';
+  if(!vacations.length) { box.innerHTML='<div class="story-item">No vacations added.</div>'; return; }
+  vacations.slice().sort((a,b)=>a.start.localeCompare(b.start)).forEach(v=>{
+    const item=document.createElement('div'); item.className='story-item';
+    item.innerHTML=`✈️ <strong>${v.person}</strong>: ${dateFmt(v.start)} → ${dateFmt(v.end)} (${daysInclusive(v.start,v.end)} days) <button style="float:right;padding:5px 8px" onclick="removeVacation('${v.id}')">Remove</button>`;
+    box.appendChild(item);
+  });
+}
+
+function persist() {
+  renderAll();
+  queueEncryptedSave();
+}
+
+
+function editBill(id){
+  if(!verifyAdmin('edit this saved bill')) return;
+  const b=bills.find(x=>String(x.id)===String(id));
+  if(!b) return;
+  pendingEditBillId=String(id);
+  document.getElementById('editBillMonth').value=labelToMonth(b.label,b.end||b.start);
+  document.getElementById('editBillStart').value=b.start;
+  document.getElementById('editBillEnd').value=b.end;
+  document.getElementById('editBillAmount').value=Number(b.amount).toFixed(2);
+  document.getElementById('editBillModal').classList.add('open');
+}
+function closeEditBillModal(){
+  document.getElementById('editBillModal').classList.remove('open');
+  pendingEditBillId=null;
+}
+function saveBillEdit(){
+  if(!pendingEditBillId) return;
+  const b=bills.find(x=>String(x.id)===String(pendingEditBillId));
+  if(!b) return closeEditBillModal();
+  const month=document.getElementById('editBillMonth').value;
+  const label=monthToLabel(month);
+  const start=document.getElementById('editBillStart').value;
+  const end=document.getElementById('editBillEnd').value;
+  const amount=Number(document.getElementById('editBillAmount').value);
+  if(!label||!start||!end||!Number.isFinite(amount)||amount<0){
+    alert('Please complete all bill fields.'); return;
+  }
+  if(end<start){alert('End date cannot be before start date.'); return;}
+  Object.assign(b,{label,start,end,amount:Math.round(amount*100)/100});
+  bills.sort((a,b)=>a.start.localeCompare(b.start));
+  closeEditBillModal();
+  persist();
+}
+async function deleteBill(id){
+  if(!verifyAdmin('delete this saved bill')) return;
+  const b=bills.find(x=>String(x.id)===String(id));
+  if(!b) return;
+  if(!confirm(`Delete ${b.label}? This cannot be undone.`)) return;
+  bills=bills.filter(x=>String(x.id)!==String(id));
+  try{await deleteAttachment(id);}catch(e){}
+  persist();
+}
+
+async function addBill() {
+  const month=document.getElementById('label').value;
+  const label=monthToLabel(month);
+  const start=document.getElementById('start').value, end=document.getElementById('end').value;
+  const amount=parseFloat(document.getElementById('amount').value);
+  const file=document.getElementById('billAttachment').files[0];
+  if(!label || !start || !end || !Number.isFinite(amount) || amount<0) return alert('Please complete all bill fields.');
+  if(new Date(end) < new Date(start)) return alert('End date cannot be before start date.');
+  if(!file) return alert('Please attach the bill as PDF, JPG or PNG.');
+  if(!['application/pdf','image/jpeg','image/png'].includes(file.type)) return alert('Attachment must be PDF, JPG or PNG.');
+  const id=String(Date.now());
+  bills.push({id,label,start,end,amount});
+  try { await saveAttachment(id,file); } catch(e) { bills=bills.filter(b=>String(b.id)!==id); return alert('Could not save the attachment on this device.'); }
+  ['label','start','end','amount'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('billAttachment').value='';
+  persist();
+}
+
+function addVacation() {
+  const person=document.getElementById('vacPerson').value;
+  const start=document.getElementById('vacStart').value, end=document.getElementById('vacEnd').value;
+  if(!start || !end) return alert('Please enter vacation start and end dates.');
+  if(new Date(end) < new Date(start)) return alert('Vacation end date cannot be before start date.');
+  vacations.push({id:String(Date.now()),person,start,end});
+  document.getElementById('vacStart').value=''; document.getElementById('vacEnd').value='';
+  persist();
+}
+
+function removeVacation(id) {
+  if(!verifyAdmin('remove this vacation')) return;
+  const v=vacations.find(x=>String(x.id)===String(id));
+  if(!v) return;
+  if(!confirm(`Remove ${v.person} vacation from ${dateFmt(v.start)} to ${dateFmt(v.end)}?`)) return;
+  vacations=vacations.filter(v=>String(v.id)!==String(id));
+  persist();
+}
+
+function savePaid() {
+  const val=parseFloat(document.getElementById('paidInput').value || '0');
+  if(!Number.isFinite(val) || val<0) return alert('Paid amount must be zero or more.');
+  const total=totals().total;
+  paid=Math.min(Math.round(val*100)/100,total);
+  if(val>total) alert('Paid cannot be greater than Total. It was capped at the current Total.');
+  persist();
+}
+
+const ATTACH_DB='electricitySplitAttachments';
+let previewObjectUrl=null;
+function openAttachmentDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(ATTACH_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files')) req.result.createObjectStore('files');};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function saveAttachment(id,file){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({blob:file,name:file.name,type:file.type},String(id));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
+async function deleteAttachment(id){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete(String(id));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
+async function getAttachment(id){const db=await openAttachmentDb();return new Promise((resolve,reject)=>{const req=db.transaction('files','readonly').objectStore('files').get(String(id));req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}
+async function previewAttachment(id){
+  const bill=bills.find(b=>String(b.id)===String(id));
+  const modal=document.getElementById('attachmentModal'), body=document.getElementById('attachmentBody');
+  document.getElementById('attachmentTitle').textContent=(bill?.label||'Bill')+' · Attachment';
+  body.innerHTML='<div class="modal-empty">Loading attachment…</div>'; modal.classList.add('open');
+  try{const item=await getAttachment(id); if(!item){body.innerHTML='<div class="modal-empty">No attachment is linked to this older bill.</div>';return;} if(previewObjectUrl) URL.revokeObjectURL(previewObjectUrl); previewObjectUrl=URL.createObjectURL(item.blob); if(item.type==='application/pdf') body.innerHTML=`<iframe src="${previewObjectUrl}" title="Bill PDF"></iframe>`; else body.innerHTML=`<img src="${previewObjectUrl}" alt="Bill attachment">`;}
+  catch(e){body.innerHTML='<div class="modal-empty">Could not open this attachment.</div>';}
+}
+function closeAttachmentPreview(){document.getElementById('attachmentModal').classList.remove('open');document.getElementById('attachmentBody').innerHTML='<div class="modal-empty">No attachment selected.</div>';if(previewObjectUrl){URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=null;}}
+function toggleCalendar(){const p=document.getElementById('calendarPanel'),b=document.getElementById('calendarToggle');const open=p.classList.toggle('open');b.textContent=open?'Hide Calendar':'Show Calendar';if(open) renderVacationCalendar();}
+function renderCalendarSummary(){const box=document.getElementById('calendarSummary');const parts=['Salah','Alaa'].map(person=>{const vs=vacations.filter(v=>v.person===person).sort((a,b)=>a.start.localeCompare(b.start));const txt=vs.length?vs.map(v=>`${dateFmt(v.start)} → ${dateFmt(v.end)}`).join(' · '):'No vacations';return `<div class="summary-chip"><strong>${person}</strong> · ${txt}</div>`;});box.innerHTML=parts.join('');}
+function vacationClass(day){const sv=isOnVacation('Salah',day),av=isOnVacation('Alaa',day);return sv&&av?'both':sv?'salah':av?'alaa':'';}
+function renderVacationCalendar(){const root=document.getElementById('vacationCalendar');root.innerHTML='';[2025,2026].forEach(year=>{const y=document.createElement('div');y.className='year-block';y.innerHTML=`<div class="year-title">${year}</div>`;const mg=document.createElement('div');mg.className='months-grid';for(let m=0;m<12;m++){const mc=document.createElement('div');mc.className='month-card';const title=new Date(year,m,1).toLocaleDateString('en-US',{month:'long'});let html=`<div class="month-title">${title}</div><div class="week"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div><div class="days">`;const first=new Date(year,m,1).getDay(), last=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)html+='<span class="day blank"></span>';for(let d=1;d<=last;d++){const day=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<span class="day ${vacationClass(day)}" title="${day}">${d}</span>`;}html+='</div>';mc.innerHTML=html;mg.appendChild(mc);}y.appendChild(mg);root.appendChild(y);});}
+
+function copySummary() {
+  const t=totals();
+  const txt=`Electricity Split Summary\nBills: ${bills.length}\nTotal: ${money(t.total)}\nPaid: ${money(paid)}\nRemaining: ${money(t.remaining)}\nSalah: ${money(t.s)}\nAlaa: ${money(t.a)}\nVacations: ${vacations.length}`;
+  navigator.clipboard?.writeText(txt).then(()=>alert('Summary copied.'));
+}
+
+function exportCSV() {
+  let rows=[['Bill','From','To','Days','Amount SAR','Salah SAR','Alaa SAR','Split']];
+  bills.forEach((b,i)=>{const sp=billSplit(b,i);rows.push([b.label,b.start,b.end,sp.days,Number(b.amount).toFixed(2),sp.s.toFixed(2),sp.a.toFixed(2),splitLabel(b,i)])});
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Electricity_Bills_Salah_Alaa.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function renderAll() { renderKPIs(); renderStory(); renderChart(); renderTable(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
+window.addEventListener('load',()=>document.getElementById('unlockPassword')?.focus());
+</script>
+</body>
+</html>
