@@ -774,6 +774,7 @@ const money = n => CURRENCY+' ' + Number(n).toLocaleString('en-US', {minimumFrac
 const dateFmt = s => new Date(s+'T12:00:00').toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
 const daysInclusive = (a,b) => Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)+1;
 const isoDay = d => d.toISOString().slice(0,10);
+const localDateISO = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const addDays = (s,n) => { const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return isoDay(d); };
 
 function isOnVacation(person, day) {
@@ -1367,7 +1368,7 @@ function openAuditLog(){
   const tbody=document.getElementById('auditRows');tbody.innerHTML='';
   const rows=[...auditLog].sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,150);
   if(!rows.length)tbody.innerHTML='<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:22px">No audit events recorded yet. v11 starts recording new financial changes automatically.</td></tr>';
-  else rows.forEach(e=>{const tr=document.createElement('tr'),d=e.at?new Date(e.at):null;tr.innerHTML=`<td>${d&&!Number.isNaN(d.getTime())?dateFmt(d.toISOString().slice(0,10))+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'—'}</td><td class="audit-action">${escapeHtml(auditActionLabel(e.type))}</td><td><div class="audit-detail">${escapeHtml(auditDetails(e))}</div></td>`;tbody.appendChild(tr);});
+  else rows.forEach(e=>{const tr=document.createElement('tr'),d=e.at?new Date(e.at):null;tr.innerHTML=`<td>${d&&!Number.isNaN(d.getTime())?dateFmt(localDateISO(d))+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'—'}</td><td class="audit-action">${escapeHtml(auditActionLabel(e.type))}</td><td><div class="audit-detail">${escapeHtml(auditDetails(e))}</div></td>`;tbody.appendChild(tr);});
   document.getElementById('auditSummary').innerHTML=`Encrypted audit trail · <strong>${auditLog.length}</strong> event${auditLog.length===1?'':'s'} recorded · <strong>${voidedBills.length}</strong> voided bill${voidedBills.length===1?'':'s'} preserved.`;
   document.getElementById('auditModal').classList.add('open');
 }
@@ -1421,7 +1422,7 @@ async function confirmRestoreBackup(){
     pendingRestore=null;renderAll();updateBackupStatus();updateStorageStatus();alert('Backup restored successfully.');
   }catch(e){console.error(e);pendingRestore=null;localStorage.removeItem(RESTORE_TEMP_KEY);alert('Restore failed. The backup was validated first, but the replacement could not be completed.');}
 }
-function updateBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;const raw=localStorage.getItem(LAST_BACKUP_KEY);if(!raw){el.textContent='Last backup: Not yet';return;}const d=new Date(raw);el.textContent=`Last backup: ${reportDateFmt(d.toISOString().slice(0,10))} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function updateBackupStatus(){const el=document.getElementById('backupStatus');if(!el)return;const raw=localStorage.getItem(LAST_BACKUP_KEY);if(!raw){el.textContent='Last backup: Not yet';return;}const d=new Date(raw);el.textContent=`Last backup: ${reportDateFmt(localDateISO(d))} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 async function checkAttachmentIntegrity(){
   try{
     const rows=await listRawAttachments(),valid=new Set([...bills,...voidedBills].map(b=>String(b.id)));
