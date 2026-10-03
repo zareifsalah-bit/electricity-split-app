@@ -106,6 +106,66 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
   .payment-summary-grid{grid-template-columns:1fr}
 }
 
+
+
+/* v7 · Bill filters, pagination & printable report */
+button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
+.bill-history-card{overflow:hidden}
+.bill-table-wrap{overflow:auto}
+.bill-filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.bill-filter-field{min-width:120px}
+.bill-filter-field label{margin-bottom:4px}
+.bill-filter-field select{padding:8px 10px;min-width:120px}
+.filter-clear{padding:9px 11px}
+.bill-list-meta{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 18px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pagination{display:flex;align-items:center;gap:8px;margin-left:auto}
+.pagination button{padding:7px 10px;font-size:11px}
+.pagination-info{min-width:92px;text-align:center;color:#dce8f8;font-weight:700}
+.report-range-hint{color:var(--muted);font-size:11px;line-height:1.55;margin-top:10px}
+#reportPrintArea{display:none}
+.report-sheet{font-family:Arial,Helvetica,sans-serif;color:#172033;background:#fff;font-size:10.5pt;line-height:1.45}
+.report-header{border-bottom:2px solid #172033;padding-bottom:10px;margin-bottom:14px}
+.report-title{font-size:21pt;font-weight:800;margin:0 0 3px}
+.report-subtitle{font-size:10pt;color:#536176}
+.report-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px}
+.report-kpi{border:1px solid #d9e0e8;border-radius:8px;padding:9px}
+.report-kpi span{display:block;color:#657286;font-size:8.5pt;text-transform:uppercase;letter-spacing:.04em}
+.report-kpi strong{display:block;font-size:14pt;margin-top:3px}
+.report-section{margin:16px 0}
+.report-section h2{font-size:12.5pt;margin:0 0 7px;border-bottom:1px solid #d9e0e8;padding-bottom:4px}
+.report-table{width:100%;border-collapse:collapse;font-size:9pt}
+.report-table th,.report-table td{border:1px solid #d9e0e8;padding:6px 7px;text-align:left;vertical-align:top}
+.report-table th{background:#f2f5f8;color:#364154;font-size:8pt;text-transform:uppercase;letter-spacing:.03em}
+.report-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.report-person{border:1px solid #d9e0e8;border-radius:8px;padding:10px}
+.report-person h3{margin:0 0 7px;font-size:12pt}
+.report-person-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0f4;padding:5px 0}
+.report-person-row:first-of-type{border-top:0}
+.report-note{border:1px solid #d9e0e8;background:#f7f9fb;border-radius:8px;padding:9px;color:#46546a;font-size:9pt}
+.report-footer{margin-top:18px;padding-top:8px;border-top:1px solid #d9e0e8;color:#657286;font-size:8.5pt}
+@media(max-width:700px){
+  .bill-filters{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .bill-filter-field{min-width:0}
+  .bill-filter-field select{min-width:0}
+  .filter-clear{grid-column:1/-1;width:100%}
+  .bill-list-meta{align-items:flex-start}
+  .pagination{width:100%;justify-content:space-between;margin-left:0}
+  .bill-history-card{overflow:hidden!important}
+}
+@media print{
+  body.report-print-mode{background:#fff!important;color:#111!important}
+  body.report-print-mode #lockScreen,
+  body.report-print-mode #appRoot,
+  body.report-print-mode .modal{display:none!important}
+  body.report-print-mode #reportPrintArea{display:block!important}
+  body.report-print-mode .report-sheet{display:block!important}
+  body.report-print-mode .report-table thead{display:table-header-group}
+  body.report-print-mode .report-table tr{break-inside:avoid;page-break-inside:avoid}
+  body.report-print-mode .report-section{break-inside:auto}
+  body.report-print-mode .report-person,.report-kpi,.report-note{break-inside:avoid;page-break-inside:avoid}
+  @page{size:A4 portrait;margin:12mm}
+}
+
 </style>
 </head>
 <body>
@@ -133,6 +193,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     <div class="actions">
       <button onclick="copySummary()">Copy Summary</button>
       <button onclick="exportCSV()">Export CSV</button>
+      <button onclick="openReportModal()">PDF Report</button>
       <button onclick="window.print()">Print</button>
       <button onclick="lockApp()">Logout</button>
       <button class="primary" onclick="document.getElementById('addBill').scrollIntoView({behavior:'smooth'})">+ Add Bill</button>
@@ -183,15 +244,29 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     <div class="chart" id="chart"></div>
   </section>
 
-  <section class="card table-card" style="margin-top:16px">
+  <section class="card table-card bill-history-card" style="margin-top:16px">
     <div class="table-head">
-      <div><strong>Bill History</strong><div class="sub">All bills preloaded from your records</div></div>
-      <input id="search" class="search" placeholder="Search month or date…" oninput="renderTable()" />
+      <div><strong>Bill History</strong><div class="sub">5 bills per page · newest first</div></div>
+      <div class="bill-filters">
+        <div class="bill-filter-field"><label>Year</label><select id="billFilterYear" onchange="onBillFilterChange()"><option value="">All Years</option></select></div>
+        <div class="bill-filter-field"><label>Month</label><select id="billFilterMonth" onchange="onBillFilterChange()"><option value="">All Months</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></div>
+        <button class="filter-clear" onclick="clearBillFilters()">Clear Filters</button>
+      </div>
     </div>
-    <table>
-      <thead><tr><th>Bill</th><th>Period</th><th>Days</th><th>Amount</th><th>Salah</th><th>Alaa</th><th>Split</th><th>Attachment</th><th>Actions</th></tr></thead>
-      <tbody id="billRows"></tbody>
-    </table>
+    <div class="bill-table-wrap">
+      <table>
+        <thead><tr><th>Bill</th><th>Period</th><th>Days</th><th>Amount</th><th>Salah</th><th>Alaa</th><th>Split</th><th>Attachment</th><th>Actions</th></tr></thead>
+        <tbody id="billRows"></tbody>
+      </table>
+    </div>
+    <div class="bill-list-meta">
+      <span id="billResultsInfo">Showing 0 bills</span>
+      <div id="billPagination" class="pagination">
+        <button id="billPrev" onclick="changeBillPage(-1)">← Previous</button>
+        <span id="billPageInfo" class="pagination-info">Page 1 of 1</span>
+        <button id="billNext" onclick="changeBillPage(1)">Next →</button>
+      </div>
+    </div>
   </section>
 
   <section class="grid panel-row">
@@ -266,6 +341,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
       <div class="story-item">✈️ <strong>Only one person on vacation:</strong> the other person pays 100% for those days.</div>
       <div class="story-item">🌍 <strong>Both on vacation:</strong> those days remain 50/50.</div>
       <div class="story-item">⚙️ <strong>Automatic:</strong> changing vacations immediately recalculates every affected bill and all totals.</div>
+      <div class="story-item">💳 <strong>Payment allocation:</strong> payments are applied automatically to the oldest outstanding bills first (FIFO), while each person's payments settle that person's oldest share first.</div>
     </div>
   </section>
 
@@ -305,6 +381,22 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     </div>
   </div>
 </div>
+
+<div id="reportSettingsModal" class="modal" onclick="if(event.target===this) closeReportModal()">
+  <div class="modal-box" style="width:min(560px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>PDF Report</strong><button onclick="closeReportModal()">✕</button></div>
+    <div style="padding:16px">
+      <div class="form-grid">
+        <div><label>From Month</label><input id="reportFromMonth" type="month"></div>
+        <div><label>To Month</label><input id="reportToMonth" type="month"></div>
+        <div class="full"><button class="primary" style="width:100%" onclick="generatePDFReport()">Generate PDF Report</button></div>
+      </div>
+      <div class="report-range-hint">Choose the first and last bill month. The report recalculates payment allocation from the oldest recorded bill first, then shows the current settlement status for the selected months.</div>
+    </div>
+  </div>
+</div>
+
+<div id="reportPrintArea" aria-hidden="true"></div>
 
 <div id="attachmentModal" class="modal" onclick="if(event.target===this) closeAttachmentPreview()">
   <div class="modal-box">
@@ -465,6 +557,42 @@ function labelToMonth(label,fallbackDate=''){
   return /^\d{4}-\d{2}/.test(fallbackDate||'') ? fallbackDate.slice(0,7) : '';
 }
 let pendingEditBillId=null;
+let billPage=1;
+const BILLS_PER_PAGE=5;
+function billMonthKey(b){
+  return labelToMonth(b?.label,b?.end||b?.start||'') || String(b?.start||'').slice(0,7);
+}
+function populateBillFilterOptions(){
+  const select=document.getElementById('billFilterYear');
+  if(!select) return;
+  const previous=select.value;
+  const years=[...new Set(bills.map(b=>billMonthKey(b).slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort((a,b)=>b.localeCompare(a));
+  select.innerHTML='<option value="">All Years</option>'+years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  select.value=years.includes(previous)?previous:'';
+}
+function onBillFilterChange(){billPage=1;renderTable();}
+function clearBillFilters(){
+  const y=document.getElementById('billFilterYear'),m=document.getElementById('billFilterMonth');
+  if(y)y.value=''; if(m)m.value=''; billPage=1; renderTable();
+}
+function changeBillPage(delta){
+  billPage=Math.max(1,billPage+delta);
+  renderTable();
+  document.querySelector('.bill-history-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function filteredBillsForTable(){
+  const year=document.getElementById('billFilterYear')?.value||'';
+  const month=document.getElementById('billFilterMonth')?.value||'';
+  return [...bills].filter(b=>{
+    const key=billMonthKey(b);
+    return (!year||key.slice(0,4)===year) && (!month||key.slice(5,7)===month);
+  }).sort((a,b)=>{
+    const mk=billMonthKey(b).localeCompare(billMonthKey(a));
+    if(mk) return mk;
+    return String(b.end||b.start||'').localeCompare(String(a.end||a.start||''));
+  });
+}
+
 
 const money = n => 'SAR ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const dateFmt = s => new Date(s+'T12:00:00').toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
@@ -578,14 +706,34 @@ function splitLabel(b,index) {
 }
 
 function renderTable() {
-  const q=(document.getElementById('search').value||'').toLowerCase();
-  const tbody=document.getElementById('billRows'); tbody.innerHTML='';
-  bills.filter(b => !q || (b.label+b.start+b.end).toLowerCase().includes(q)).forEach((b)=>{
-    const idx=bills.indexOf(b), sp=billSplit(b,idx);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td><strong>${b.label}</strong><span class="locked-pill">🔒 Locked</span></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${sp.days}</td><td class="money">${money(b.amount)}</td><td class="money">${money(sp.s)}</td><td class="money">${money(sp.a)}</td><td><span class="pill">${splitLabel(b,idx)}</span></td><td><button class="attachment-btn" onclick="previewAttachment('${String(b.id)}')">📎 Preview</button></td><td><div class="action-cell"><button class="mini-btn" onclick="editBill('${String(b.id)}')">Edit</button><button class="mini-btn danger-mini" onclick="deleteBill('${String(b.id)}')">Delete</button></div></td>`;
-    tbody.appendChild(tr);
-  });
+  const tbody=document.getElementById('billRows');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  const filtered=filteredBillsForTable();
+  const totalPages=Math.max(1,Math.ceil(filtered.length/BILLS_PER_PAGE));
+  if(billPage>totalPages) billPage=totalPages;
+  if(billPage<1) billPage=1;
+  const start=(billPage-1)*BILLS_PER_PAGE;
+  const pageItems=filtered.slice(start,start+BILLS_PER_PAGE);
+
+  if(!pageItems.length){
+    tbody.innerHTML='<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:24px">No bills match the selected filters.</td></tr>';
+  } else {
+    pageItems.forEach((b)=>{
+      const idx=bills.indexOf(b), sp=billSplit(b,idx);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td><strong>${b.label}</strong><span class="locked-pill">🔒 Locked</span></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${sp.days}</td><td class="money">${money(b.amount)}</td><td class="money">${money(sp.s)}</td><td class="money">${money(sp.a)}</td><td><span class="pill">${splitLabel(b,idx)}</span></td><td><button class="attachment-btn" onclick="previewAttachment('${String(b.id)}')">📎 Preview</button></td><td><div class="action-cell"><button class="mini-btn" onclick="editBill('${String(b.id)}')">Edit</button><button class="mini-btn danger-mini" onclick="deleteBill('${String(b.id)}')">Delete</button></div></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  const first=filtered.length?start+1:0;
+  const last=Math.min(start+BILLS_PER_PAGE,filtered.length);
+  document.getElementById('billResultsInfo').textContent=filtered.length?`Showing ${first}–${last} of ${filtered.length} bills`:'Showing 0 bills';
+  document.getElementById('billPageInfo').textContent=`Page ${filtered.length?billPage:0} of ${filtered.length?totalPages:0}`;
+  document.getElementById('billPrev').disabled=!filtered.length||billPage<=1;
+  document.getElementById('billNext').disabled=!filtered.length||billPage>=totalPages;
+  document.getElementById('billPagination').style.display=filtered.length?'flex':'none';
 }
 
 function renderVacations() {
@@ -803,6 +951,135 @@ function renderCalendarSummary(){const box=document.getElementById('calendarSumm
 function vacationClass(day){const sv=isOnVacation('Salah',day),av=isOnVacation('Alaa',day);return sv&&av?'both':sv?'salah':av?'alaa':'';}
 function renderVacationCalendar(){const root=document.getElementById('vacationCalendar');root.innerHTML='';[2025,2026].forEach(year=>{const y=document.createElement('div');y.className='year-block';y.innerHTML=`<div class="year-title">${year}</div>`;const mg=document.createElement('div');mg.className='months-grid';for(let m=0;m<12;m++){const mc=document.createElement('div');mc.className='month-card';const title=new Date(year,m,1).toLocaleDateString('en-US',{month:'long'});let html=`<div class="month-title">${title}</div><div class="week"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div><div class="days">`;const first=new Date(year,m,1).getDay(), last=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)html+='<span class="day blank"></span>';for(let d=1;d<=last;d++){const day=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<span class="day ${vacationClass(day)}" title="${day}">${d}</span>`;}html+='</div>';mc.innerHTML=html;mg.appendChild(mc);}y.appendChild(mg);root.appendChild(y);});}
 
+function fifoAllocations(){
+  const ordered=[...bills].sort((a,b)=>{
+    const mk=billMonthKey(a).localeCompare(billMonthKey(b));
+    if(mk) return mk;
+    return String(a.start||'').localeCompare(String(b.start||''));
+  });
+  let totalPool=activePayments().reduce((s,p)=>s+toCents(p.amount),0);
+  let salahPool=paidCentsBy('Salah');
+  let alaaPool=paidCentsBy('Alaa');
+  const byBill=new Map();
+  ordered.forEach(b=>{
+    const idx=bills.indexOf(b), sp=billSplit(b,idx);
+    const total=toCents(b.amount), sShare=toCents(sp.s), aShare=toCents(sp.a);
+    const overallPaid=Math.min(total,totalPool); totalPool-=overallPaid;
+    const sPaid=Math.min(sShare,salahPool); salahPool-=sPaid;
+    const aPaid=Math.min(aShare,alaaPool); alaaPool-=aPaid;
+    byBill.set(String(b.id),{total,sShare,aShare,overallPaid,sPaid,aPaid,overallRemaining:total-overallPaid,sRemaining:sShare-sPaid,aRemaining:aShare-aPaid});
+  });
+  return {byBill,overallCredit:Math.max(0,totalPool),salahCredit:Math.max(0,salahPool),alaaCredit:Math.max(0,alaaPool)};
+}
+let reportPreviousTitle='';
+function openReportModal(){
+  if(!bills.length) return alert('No bills are available for a report.');
+  const keys=bills.map(b=>billMonthKey(b)).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+  if(!keys.length) return alert('Bill months could not be determined.');
+  document.getElementById('reportFromMonth').value=keys[0];
+  document.getElementById('reportToMonth').value=keys[keys.length-1];
+  document.getElementById('reportSettingsModal').classList.add('open');
+}
+function closeReportModal(){document.getElementById('reportSettingsModal').classList.remove('open');}
+function monthEndISO(monthKey){
+  const [y,m]=monthKey.split('-').map(Number);
+  return new Date(y,m,0,12).toISOString().slice(0,10);
+}
+function reportVacationRows(person,coverageStart,coverageEnd){
+  const matches=vacations.filter(v=>v.person===person && v.end>=coverageStart && v.start<=coverageEnd).sort((a,b)=>a.start.localeCompare(b.start));
+  if(!matches.length) return '<tr><td colspan="3">No vacation recorded for the selected billing cycles.</td></tr>';
+  return matches.map(v=>{
+    const start=v.start<coverageStart?coverageStart:v.start;
+    const end=v.end>coverageEnd?coverageEnd:v.end;
+    return `<tr><td>${dateFmt(start)}</td><td>${dateFmt(end)}</td><td>${daysInclusive(start,end)} days</td></tr>`;
+  }).join('');
+}
+function generatePDFReport(){
+  const from=document.getElementById('reportFromMonth').value;
+  const to=document.getElementById('reportToMonth').value;
+  if(!from||!to) return alert('Please choose From Month and To Month.');
+  if(from>to) return alert('From Month cannot be after To Month.');
+  const selected=[...bills].filter(b=>{const k=billMonthKey(b);return k>=from&&k<=to;}).sort((a,b)=>{
+    const mk=billMonthKey(b).localeCompare(billMonthKey(a));
+    if(mk) return mk;
+    return String(b.end||'').localeCompare(String(a.end||''));
+  });
+  if(!selected.length) return alert('No bills exist in the selected report period.');
+
+  const alloc=fifoAllocations();
+  let total=0,paid=0,sShare=0,aShare=0,sPaid=0,aPaid=0;
+  selected.forEach(b=>{
+    const x=alloc.byBill.get(String(b.id));
+    if(!x)return;
+    total+=x.total; paid+=x.overallPaid; sShare+=x.sShare; aShare+=x.aShare; sPaid+=x.sPaid; aPaid+=x.aPaid;
+  });
+  const remaining=Math.max(0,total-paid);
+  const sRemaining=Math.max(0,sShare-sPaid), aRemaining=Math.max(0,aShare-aPaid);
+  const sPct=total?(sShare/total*100):0;
+  const aPct=total?(100-sPct):0;
+  const coverageStart=selected.reduce((m,b)=>!m||b.start<m?b.start:m,'');
+  const coverageEnd=selected.reduce((m,b)=>!m||b.end>m?b.end:m,'');
+  const generated=new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const ledger=paymentLedger();
+  const settlement=ledger.interDebt>0?`${ledger.debtor} owes ${ledger.creditor} ${money(fromCents(ledger.interDebt))}`:'Internal settlement: SAR 0.00';
+  const billRows=selected.map(b=>{
+    const x=alloc.byBill.get(String(b.id));
+    return `<tr><td><strong>${escapeHtml(b.label)}</strong></td><td>${dateFmt(b.start)} → ${dateFmt(b.end)}</td><td>${money(fromCents(x.total))}</td><td>${money(fromCents(x.overallPaid))}</td><td>${money(fromCents(x.overallRemaining))}</td><td>${money(fromCents(x.sShare))}</td><td>${money(fromCents(x.aShare))}</td></tr>`;
+  }).join('');
+
+  const html=`<div class="report-sheet">
+    <div class="report-header">
+      <div class="report-title">Electricity Split Report</div>
+      <div class="report-subtitle">Salah &amp; Alaa · Shared Meter</div>
+      <div class="report-subtitle"><strong>Report Period:</strong> ${monthToLabel(from)} – ${monthToLabel(to)} &nbsp; · &nbsp; <strong>Settlement Status as of:</strong> ${generated}</div>
+    </div>
+    <div class="report-kpis">
+      <div class="report-kpi"><span>Total Bills</span><strong>${money(fromCents(total))}</strong></div>
+      <div class="report-kpi"><span>Paid</span><strong>${money(fromCents(paid))}</strong></div>
+      <div class="report-kpi"><span>Remaining</span><strong>${money(fromCents(remaining))}</strong></div>
+    </div>
+    <div class="report-section">
+      <h2>Monthly Bills</h2>
+      <table class="report-table"><thead><tr><th>Bill Month</th><th>Billing Period</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Salah Share</th><th>Alaa Share</th></tr></thead><tbody>${billRows}</tbody></table>
+    </div>
+    <div class="report-section">
+      <h2>Share Summary</h2>
+      <div class="report-summary-grid">
+        <div class="report-person"><h3>Salah</h3>
+          <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(sShare))}</strong></div>
+          <div class="report-person-row"><span>Share %</span><strong>${sPct.toFixed(2)}%</strong></div>
+          <div class="report-person-row"><span>Paid (FIFO allocated)</span><strong>${money(fromCents(sPaid))}</strong></div>
+          <div class="report-person-row"><span>Remaining</span><strong>${money(fromCents(sRemaining))}</strong></div>
+        </div>
+        <div class="report-person"><h3>Alaa</h3>
+          <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(aShare))}</strong></div>
+          <div class="report-person-row"><span>Share %</span><strong>${aPct.toFixed(2)}%</strong></div>
+          <div class="report-person-row"><span>Paid (FIFO allocated)</span><strong>${money(fromCents(aPaid))}</strong></div>
+          <div class="report-person-row"><span>Remaining</span><strong>${money(fromCents(aRemaining))}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="report-section">
+      <h2>Vacation Periods Affecting Selected Billing Cycles</h2>
+      <table class="report-table"><thead><tr><th colspan="3">Salah</th></tr><tr><th>From</th><th>To</th><th>Days</th></tr></thead><tbody>${reportVacationRows('Salah',coverageStart,coverageEnd)}</tbody></table>
+      <div style="height:8px"></div>
+      <table class="report-table"><thead><tr><th colspan="3">Alaa</th></tr><tr><th>From</th><th>To</th><th>Days</th></tr></thead><tbody>${reportVacationRows('Alaa',coverageStart,coverageEnd)}</tbody></table>
+    </div>
+    <div class="report-section"><h2>Settlement Status</h2><div class="report-note">${escapeHtml(settlement)}<br>Outstanding to electricity across all recorded bills: <strong>${money(fromCents(ledger.outstanding))}</strong>${alloc.salahCredit?`<br>Salah account credit: <strong>${money(fromCents(alloc.salahCredit))}</strong>`:''}${alloc.alaaCredit?`<br>Alaa account credit: <strong>${money(fromCents(alloc.alaaCredit))}</strong>`:''}</div></div>
+    <div class="report-footer">Payments are allocated FIFO from the oldest recorded obligations first. Overall bill payment is allocated across the oldest bills; each person's payment is separately allocated to that person's oldest share. This report shows the current settlement status of the selected bill months.</div>
+  </div>`;
+  document.getElementById('reportPrintArea').innerHTML=html;
+  closeReportModal();
+  reportPreviousTitle=document.title;
+  document.title=`Electricity_Split_Report_${from}_to_${to}`;
+  document.body.classList.add('report-print-mode');
+  setTimeout(()=>window.print(),80);
+}
+window.addEventListener('afterprint',()=>{
+  document.body.classList.remove('report-print-mode');
+  if(reportPreviousTitle){document.title=reportPreviousTitle;reportPreviousTitle='';}
+});
+
 function copySummary() {
   const t=totals(), l=paymentLedger();
   const settlement=l.interDebt>0 ? `${l.debtor} owes ${l.creditor}: ${money(fromCents(l.interDebt))}` : 'Internal settlement: SAR 0.00';
@@ -834,7 +1111,7 @@ function exportCSV() {
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Electricity_Bills_and_Payments_Salah_Alaa.csv'; a.click(); URL.revokeObjectURL(a.href);
 }
 
-function renderAll() { renderKPIs(); renderStory(); renderChart(); renderTable(); renderPayments(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
+function renderAll() { renderKPIs(); renderStory(); renderChart(); populateBillFilterOptions(); renderTable(); renderPayments(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
 window.addEventListener('load',()=>{document.getElementById('unlockPassword')?.focus(); const pd=document.getElementById('paymentDate'); if(pd&&!pd.value) pd.value=todayISO();});
 </script>
 </body>
