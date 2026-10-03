@@ -85,6 +85,27 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
 .action-cell{display:flex;gap:6px;flex-wrap:wrap}.mini-btn{padding:6px 8px;border-radius:8px;font-size:10px}.danger-mini{border-color:rgba(251,113,133,.32);color:#fecdd3;background:rgba(251,113,133,.08)}
 .locked-pill{font-size:9px;padding:3px 6px;border-radius:999px;color:#c7d2fe;background:rgba(99,102,241,.14);border:1px solid rgba(129,140,248,.2);margin-left:6px}
 
+
+.payment-financials{display:grid;gap:3px;text-align:right;min-width:170px}
+.payment-financials .amt{font-size:16px}
+.payment-line{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.balance-good{color:#a7f3d0!important;font-weight:800}
+.balance-warn{color:#fde68a!important;font-weight:800}
+.balance-neutral{color:#cbd5e1!important;font-weight:800}
+.settlement-box{margin-top:10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:12px;line-height:1.65;color:#dce8f8}
+.payment-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.payment-summary-chip{padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.payment-summary-chip span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.payment-summary-chip strong{display:block;margin-top:4px;font-size:15px}
+.status-void{color:#fecdd3;background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.25)}
+.status-active{color:#b7fff3;background:rgba(94,234,212,.07)}
+.audit-note{font-size:10px;color:var(--muted);margin-top:3px}
+@media(max-width:600px){
+  .person{align-items:flex-start}
+  .payment-financials{min-width:145px}
+  .payment-summary-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -121,7 +142,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
   <section class="grid kpis">
     <div class="card"><div class="kpi-label">Total</div><div id="grandTotal" class="kpi-value">SAR 4,926.40</div><div class="kpi-foot"><span id="billCount">15</span> recorded bills</div></div>
     <div class="card"><div class="kpi-label">Paid</div><div id="paidTotal" class="kpi-value">SAR 0.00</div><div class="kpi-foot">Amount paid from the full bill total</div></div>
-    <div class="card"><div class="kpi-label">Remaining</div><div id="remainingTotal" class="kpi-value">SAR 4,926.40</div><div class="kpi-foot">Total − Paid</div></div>
+    <div class="card"><div class="kpi-label">Remaining</div><div id="remainingTotal" class="kpi-value">SAR 4,926.40</div><div id="remainingFoot" class="kpi-foot">Still due to electricity</div></div>
   </section>
 
   <section class="grid hero">
@@ -130,9 +151,24 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
       <div class="split-wrap">
         <div class="donut"><div class="donut-center"><div><strong id="donutTotal">4,926.40</strong><span>SAR TOTAL</span></div></div></div>
         <div>
-          <div class="person"><div class="p-left"><span class="dot" style="background:var(--salah)"></span><div><strong>Salah</strong><br><small id="salahPct">—</small></div></div><div class="amt" id="salahHero">SAR 2,463.20</div></div>
-          <div class="person"><div class="p-left"><span class="dot" style="background:var(--alaa)"></span><div><strong>Alaa</strong><br><small id="alaaPct">—</small></div></div><div class="amt" id="alaaHero">SAR 2,463.20</div></div>
-          <div class="info">Vacation-aware: enter a person, start date, and end date. Every bill is recalculated automatically by day. If one person is away, the other pays 100% for those days; if both are away, those days remain 50/50.</div>
+          <div class="person">
+            <div class="p-left"><span class="dot" style="background:var(--salah)"></span><div><strong>Salah</strong><br><small id="salahPct">—</small></div></div>
+            <div class="payment-financials">
+              <div class="amt" id="salahHero">Share · SAR 0.00</div>
+              <div class="payment-line" id="salahPaid">Paid · SAR 0.00</div>
+              <div class="payment-line balance-neutral" id="salahBalance">Settled · SAR 0.00</div>
+            </div>
+          </div>
+          <div class="person">
+            <div class="p-left"><span class="dot" style="background:var(--alaa)"></span><div><strong>Alaa</strong><br><small id="alaaPct">—</small></div></div>
+            <div class="payment-financials">
+              <div class="amt" id="alaaHero">Share · SAR 0.00</div>
+              <div class="payment-line" id="alaaPaid">Paid · SAR 0.00</div>
+              <div class="payment-line balance-neutral" id="alaaBalance">Settled · SAR 0.00</div>
+            </div>
+          </div>
+          <div id="settlementSummary" class="settlement-box"></div>
+          <div class="info">Vacation-aware: every bill is recalculated automatically by day. Payments are tracked separately for Salah and Alaa, while any amount still due to electricity remains separate from the settlement between them.</div>
         </div>
       </div>
     </div>
@@ -170,14 +206,31 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
         <div class="full"><button class="primary" style="width:100%" onclick="addBill()">Save Bill</button></div>
       </div>
     </div>
-    <div class="card form-card">
-      <div class="section-title"><div><h2>Payment Tracker</h2><p>Total / Paid / Remaining</p></div></div>
+    <div id="addPayment" class="card form-card">
+      <div class="section-title"><div><h2>Add Payment</h2><p>Each saved payment becomes a locked record</p></div></div>
       <div class="form-grid">
-        <div class="full"><label>Total Paid So Far (SAR)</label><input id="paidInput" type="number" step="0.01" min="0" placeholder="0.00"></div>
-        <div class="full"><button class="primary" style="width:100%" onclick="savePaid()">Update Paid</button></div>
+        <div><label>Paid By</label><select id="paymentPerson"><option value="Salah">Salah</option><option value="Alaa">Alaa</option></select></div>
+        <div><label>Payment Date</label><input id="paymentDate" type="date"></div>
+        <div class="full"><label>Amount (SAR)</label><input id="paymentAmount" type="number" step="0.01" min="0.01" placeholder="0.00"></div>
+        <div class="full"><label>Note / Reference (optional)</label><input id="paymentNote" placeholder="e.g. Bank transfer or payment reference"></div>
+        <div class="full"><button class="primary" style="width:100%" onclick="addPayment()">Save Payment</button></div>
       </div>
-      <div class="info" style="margin-top:12px">Paid is the amount already paid from all bills combined. Remaining updates automatically as <strong>Total − Paid</strong>.</div>
+      <div class="info" style="margin-top:12px">Payments are added as separate records. A saved payment is locked; editing or voiding it requires the app password.</div>
+      <div id="legacyPaymentWarning" class="info" style="display:none;margin-top:10px"></div>
     </div>
+  </section>
+
+  <section class="card table-card" style="margin-top:16px">
+    <div class="table-head">
+      <div><strong>Payment History</strong><div class="sub">Locked payment ledger · newest payment date first</div></div>
+    </div>
+    <div style="overflow:auto">
+      <table style="min-width:760px">
+        <thead><tr><th>Date</th><th>Paid By</th><th>Amount</th><th>Note / Reference</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="paymentRows"></tbody>
+      </table>
+    </div>
+    <div id="paymentSummary" class="payment-summary-grid" style="padding:0 18px 18px"></div>
   </section>
 
   <section class="grid panel-row">
@@ -216,7 +269,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
     </div>
   </section>
 
-  <div class="footer">Chrome/PWA dashboard · Bill data is encrypted locally · Attachments stay on this device · App code can update without replacing local data.</div>
+  <div class="footer">Chrome/PWA dashboard · Bills and payments are encrypted locally · Attachments stay on this device · Saved financial records are password-protected.</div>
 </div>
 
 
@@ -236,6 +289,23 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
   </div>
 </div>
 
+
+<div id="editPaymentModal" class="modal" onclick="if(event.target===this) closeEditPaymentModal()">
+  <div class="modal-box" style="width:min(520px,96vw);height:auto;max-height:90vh">
+    <div class="modal-head"><strong>Edit Payment</strong><button onclick="closeEditPaymentModal()">✕</button></div>
+    <div style="padding:16px">
+      <div class="form-grid">
+        <div><label>Paid By</label><select id="editPaymentPerson"><option value="Salah">Salah</option><option value="Alaa">Alaa</option></select></div>
+        <div><label>Payment Date</label><input id="editPaymentDate" type="date"></div>
+        <div class="full"><label>Amount (SAR)</label><input id="editPaymentAmount" type="number" step="0.01" min="0.01"></div>
+        <div class="full"><label>Note / Reference (optional)</label><input id="editPaymentNote"></div>
+        <div><button style="width:100%" onclick="closeEditPaymentModal()">Cancel</button></div>
+        <div><button class="primary" style="width:100%" onclick="savePaymentEdit()">Save Changes</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="attachmentModal" class="modal" onclick="if(event.target===this) closeAttachmentPreview()">
   <div class="modal-box">
     <div class="modal-head"><strong id="attachmentTitle">Bill Attachment</strong><button onclick="closeAttachmentPreview()">Close</button></div>
@@ -247,7 +317,7 @@ radial-gradient(800px 420px at 100% 0%,rgba(96,165,250,.14),transparent 60%),var
 const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"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"};
 const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
 const AAD_TEXT='electricity-split-v1';
-let bills=[], vacations=[], paid=0;
+let bills=[], vacations=[], payments=[], legacyPaid=0;
 let sessionPassword='', sessionKey=null, sessionSalt=null;
 let saveChain=Promise.resolve();
 
@@ -281,7 +351,7 @@ async function decryptBlob(password,blob){
 async function encryptStateNow(){
   if(!sessionKey||!sessionSalt) return;
   const iv=crypto.getRandomValues(new Uint8Array(12));
-  const state={bills,vacations,paid,version:4};
+  const state={bills,vacations,payments,legacyPaid,version:5};
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(AAD_TEXT)},sessionKey,new TextEncoder().encode(JSON.stringify(state)));
   localStorage.setItem(ENCRYPTED_STATE_KEY,JSON.stringify({salt:bytesToB64(sessionSalt),iv:bytesToB64(iv),ct:bytesToB64(new Uint8Array(ct))}));
 }
@@ -300,9 +370,14 @@ async function unlockApp(){
     const opened=await decryptBlob(password,blob||SEED_ENCRYPTED);
     const state=opened.state;
     if(!state||!Array.isArray(state.bills)||!Array.isArray(state.vacations)) throw new Error('Invalid state');
-    bills=state.bills; vacations=state.vacations; paid=Number(state.paid)||0;
+    bills=state.bills;
+    vacations=state.vacations;
+    const hadPayments=Array.isArray(state.payments);
+    payments=hadPayments ? state.payments.map(normalizePayment).filter(Boolean) : [];
+    legacyPaid=Number(state.legacyPaid)||0;
+    if(!hadPayments && Number(state.paid)>0) legacyPaid=Math.round(Number(state.paid)*100)/100;
     sessionPassword=password; sessionKey=opened.key; sessionSalt=opened.salt;
-    if(!blob) await encryptStateNow();
+    if(!blob || !hadPayments || Number(state.version)<5) await encryptStateNow();
     ['salahAlaaElectricityBills','salahAlaaVacations','salahAlaaPaidTotal','salahAlaaDataVersion'].forEach(k=>localStorage.removeItem(k));
     document.getElementById('lockScreen').style.display='none';
     document.getElementById('appRoot').hidden=false;
@@ -315,7 +390,7 @@ async function unlockApp(){
   }
 }
 function lockApp(){
-  sessionPassword='';sessionKey=null;sessionSalt=null;bills=[];vacations=[];paid=0;
+  sessionPassword='';sessionKey=null;sessionSalt=null;bills=[];vacations=[];payments=[];legacyPaid=0;
   document.getElementById('appRoot').hidden=true;
   document.getElementById('lockScreen').style.display='grid';
   document.getElementById('unlockPassword').focus();
@@ -328,6 +403,52 @@ function verifyAdmin(action='make this change'){
   return true;
 }
 
+
+
+const toCents = value => Math.round((Number(value)||0)*100);
+const fromCents = cents => Math.round(Number(cents)||0)/100;
+function todayISO(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function normalizePayment(p){
+  if(!p || !['Salah','Alaa'].includes(p.person) || !/^\d{4}-\d{2}-\d{2}$/.test(String(p.date||''))) return null;
+  const cents=toCents(p.amount);
+  if(cents<=0) return null;
+  return {
+    id:String(p.id||`${Date.now()}-${Math.random().toString(36).slice(2,8)}`),
+    person:p.person,
+    date:String(p.date),
+    amount:fromCents(cents),
+    note:String(p.note||'').trim(),
+    createdAt:String(p.createdAt||new Date().toISOString()),
+    updatedAt:p.updatedAt ? String(p.updatedAt) : null,
+    voided:Boolean(p.voided),
+    voidedAt:p.voidedAt ? String(p.voidedAt) : null,
+    audit:Array.isArray(p.audit)?p.audit:[]
+  };
+}
+function activePayments(){return payments.filter(p=>!p.voided);}
+function paidCentsBy(person){return activePayments().filter(p=>p.person===person).reduce((sum,p)=>sum+toCents(p.amount),0);}
+function paymentLedger(){
+  const t=totals();
+  const totalC=toCents(t.total), sShare=toCents(t.s), aShare=toCents(t.a);
+  const sPaid=paidCentsBy('Salah'), aPaid=paidCentsBy('Alaa'), legacy=toCents(legacyPaid);
+  const paidTotal=sPaid+aPaid+legacy;
+  const outstanding=Math.max(0,totalC-paidTotal);
+  const overallOverpayment=Math.max(0,paidTotal-totalC);
+  const sBalance=sPaid-sShare, aBalance=aPaid-aShare;
+  let creditor='', debtor='', interDebt=0;
+  if(sBalance>0 && aBalance<0){creditor='Salah';debtor='Alaa';interDebt=Math.min(sBalance,-aBalance);}
+  else if(aBalance>0 && sBalance<0){creditor='Alaa';debtor='Salah';interDebt=Math.min(aBalance,-sBalance);}
+  return {totalC,sShare,aShare,sPaid,aPaid,legacy,paidTotal,outstanding,overallOverpayment,sBalance,aBalance,creditor,debtor,interDebt};
+}
+function balanceLabel(balanceC){
+  if(balanceC>0) return {text:`Overpaid · ${money(fromCents(balanceC))}`,cls:'balance-good'};
+  if(balanceC<0) return {text:`Still owes · ${money(fromCents(-balanceC))}`,cls:'balance-warn'};
+  return {text:'Settled · SAR 0.00',cls:'balance-neutral'};
+}
+let pendingEditPaymentId=null;
 
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function monthToLabel(value){
@@ -386,27 +507,45 @@ function billSplit(b,index) {
 }
 
 function totals() {
-  let total=0,s=0,a=0;
-  bills.forEach((b,i)=>{ total+=Number(b.amount); const sp=billSplit(b,i); s+=sp.s; a+=sp.a; });
-  total=Math.round(total*100)/100; s=Math.round(s*100)/100; a=Math.round(a*100)/100;
-  return {total,s,a,remaining:Math.max(0,Math.round((total-paid)*100)/100)};
+  let totalC=0,sC=0,aC=0;
+  bills.forEach((b,i)=>{ const sp=billSplit(b,i); totalC+=toCents(b.amount); sC+=toCents(sp.s); aC+=toCents(sp.a); });
+  return {total:fromCents(totalC),s:fromCents(sC),a:fromCents(aC)};
 }
 
 function renderKPIs() {
-  const t=totals();
+  const t=totals(), l=paymentLedger();
   document.getElementById('billCount').textContent=bills.length;
   document.getElementById('grandTotal').textContent=money(t.total);
-  document.getElementById('paidTotal').textContent=money(paid);
-  document.getElementById('remainingTotal').textContent=money(t.remaining);
-  document.getElementById('salahHero').textContent=money(t.s);
-  document.getElementById('alaaHero').textContent=money(t.a);
+  document.getElementById('paidTotal').textContent=money(fromCents(l.paidTotal));
+  document.getElementById('remainingTotal').textContent=money(fromCents(l.outstanding));
+  document.getElementById('salahHero').textContent='Share · '+money(t.s);
+  document.getElementById('alaaHero').textContent='Share · '+money(t.a);
+  document.getElementById('salahPaid').textContent='Paid · '+money(fromCents(l.sPaid));
+  document.getElementById('alaaPaid').textContent='Paid · '+money(fromCents(l.aPaid));
+
+  const sb=balanceLabel(l.sBalance), ab=balanceLabel(l.aBalance);
+  const se=document.getElementById('salahBalance'), ae=document.getElementById('alaaBalance');
+  se.textContent=sb.text; se.className='payment-line '+sb.cls;
+  ae.textContent=ab.text; ae.className='payment-line '+ab.cls;
+
   document.getElementById('donutTotal').textContent=t.total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   const sp=t.total? (t.s/t.total*100):50, ap=100-sp;
   document.getElementById('salahPct').textContent=sp.toFixed(2)+'% share';
   document.getElementById('alaaPct').textContent=ap.toFixed(2)+'% share';
   document.getElementById('splitStatus').textContent=vacations.length ? 'Vacation adjusted' : '50 / 50';
   document.querySelector('.donut').style.background=`conic-gradient(var(--salah) 0 ${sp}%,var(--alaa) ${sp}% 100%)`;
-  document.getElementById('paidInput').value=paid ? paid.toFixed(2) : '';
+
+  const settlement=[];
+  if(l.interDebt>0) settlement.push(`<strong>${l.debtor} owes ${l.creditor} ${money(fromCents(l.interDebt))}</strong>`);
+  else settlement.push('<strong>Internal settlement: SAR 0.00</strong>');
+  if(l.outstanding>0) settlement.push(`Outstanding to electricity: <strong>${money(fromCents(l.outstanding))}</strong>`);
+  else settlement.push('<strong>Electricity fully paid</strong>');
+  if(l.overallOverpayment>0) settlement.push(`Overall overpayment: <strong>${money(fromCents(l.overallOverpayment))}</strong>`);
+  if(l.legacy>0) settlement.push(`Unallocated legacy payment: <strong>${money(fromCents(l.legacy))}</strong>`);
+  document.getElementById('settlementSummary').innerHTML=settlement.join('<br>');
+
+  const remFoot=document.getElementById('remainingFoot');
+  if(remFoot) remFoot.textContent=l.overallOverpayment>0 ? `Overall overpayment ${money(fromCents(l.overallOverpayment))}` : 'Still due to electricity';
 }
 
 function renderStory() {
@@ -546,12 +685,105 @@ function removeVacation(id) {
   persist();
 }
 
-function savePaid() {
-  const val=parseFloat(document.getElementById('paidInput').value || '0');
-  if(!Number.isFinite(val) || val<0) return alert('Paid amount must be zero or more.');
-  const total=totals().total;
-  paid=Math.min(Math.round(val*100)/100,total);
-  if(val>total) alert('Paid cannot be greater than Total. It was capped at the current Total.');
+function renderPayments(){
+  const tbody=document.getElementById('paymentRows');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  const sorted=[...payments].sort((a,b)=>b.date.localeCompare(a.date) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  if(!sorted.length){
+    tbody.innerHTML='<tr><td colspan="6" style="color:var(--muted)">No payments recorded yet.</td></tr>';
+  } else {
+    sorted.forEach(p=>{
+      const tr=document.createElement('tr');
+      const edited=p.updatedAt ? '<div class="audit-note">Edited</div>' : '';
+      const status=p.voided
+        ? '<span class="pill status-void">Voided</span>'
+        : '<span class="pill status-active">🔒 Locked</span>';
+      const actions=p.voided
+        ? '—'
+        : `<div class="action-cell"><button class="mini-btn" onclick="editPayment('${p.id}')">Edit</button><button class="mini-btn danger-mini" onclick="voidPayment('${p.id}')">Void</button></div>`;
+      tr.innerHTML=`<td>${dateFmt(p.date)}${edited}</td><td><strong>${p.person}</strong></td><td class="money">${money(p.amount)}</td><td>${escapeHtml(p.note)||'—'}</td><td>${status}</td><td>${actions}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  const l=paymentLedger();
+  document.getElementById('paymentSummary').innerHTML=`
+    <div class="payment-summary-chip"><span>Salah Paid</span><strong>${money(fromCents(l.sPaid))}</strong></div>
+    <div class="payment-summary-chip"><span>Alaa Paid</span><strong>${money(fromCents(l.aPaid))}</strong></div>
+    <div class="payment-summary-chip"><span>Active Payments Total</span><strong>${money(fromCents(l.sPaid+l.aPaid))}</strong></div>`;
+  const warning=document.getElementById('legacyPaymentWarning');
+  if(warning){
+    if(l.legacy>0){warning.style.display='block';warning.innerHTML=`A legacy paid total of <strong>${money(fromCents(l.legacy))}</strong> exists but is not assigned to Salah or Alaa. It is counted toward Total Paid but excluded from their personal settlement.`;}
+    else warning.style.display='none';
+  }
+}
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+function resetPaymentForm(){
+  document.getElementById('paymentPerson').value='Salah';
+  document.getElementById('paymentDate').value=todayISO();
+  document.getElementById('paymentAmount').value='';
+  document.getElementById('paymentNote').value='';
+}
+function addPayment(){
+  const person=document.getElementById('paymentPerson').value;
+  const date=document.getElementById('paymentDate').value;
+  const cents=toCents(document.getElementById('paymentAmount').value);
+  const note=document.getElementById('paymentNote').value.trim();
+  if(!['Salah','Alaa'].includes(person)||!date||cents<=0) return alert('Please enter the payer, payment date, and an amount greater than zero.');
+  if(date>todayISO()) return alert('Payment date cannot be in the future.');
+  const duplicate=activePayments().some(p=>p.person===person && p.date===date && toCents(p.amount)===cents);
+  if(duplicate && !confirm(`Possible duplicate payment: ${person} · ${dateFmt(date)} · ${money(fromCents(cents))}. Save it anyway?`)) return;
+  const now=new Date().toISOString();
+  payments.push({id:`p-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,person,date,amount:fromCents(cents),note,createdAt:now,updatedAt:null,voided:false,voidedAt:null,audit:[]});
+  resetPaymentForm();
+  persist();
+}
+function editPayment(id){
+  if(!verifyAdmin('edit this saved payment')) return;
+  const p=payments.find(x=>String(x.id)===String(id));
+  if(!p || p.voided) return;
+  pendingEditPaymentId=String(id);
+  document.getElementById('editPaymentPerson').value=p.person;
+  document.getElementById('editPaymentDate').value=p.date;
+  document.getElementById('editPaymentAmount').value=Number(p.amount).toFixed(2);
+  document.getElementById('editPaymentNote').value=p.note||'';
+  document.getElementById('editPaymentModal').classList.add('open');
+}
+function closeEditPaymentModal(){
+  document.getElementById('editPaymentModal').classList.remove('open');
+  pendingEditPaymentId=null;
+}
+function savePaymentEdit(){
+  if(!pendingEditPaymentId) return;
+  const p=payments.find(x=>String(x.id)===String(pendingEditPaymentId));
+  if(!p || p.voided) return closeEditPaymentModal();
+  const person=document.getElementById('editPaymentPerson').value;
+  const date=document.getElementById('editPaymentDate').value;
+  const cents=toCents(document.getElementById('editPaymentAmount').value);
+  const note=document.getElementById('editPaymentNote').value.trim();
+  if(!['Salah','Alaa'].includes(person)||!date||cents<=0) return alert('Please complete all payment fields correctly.');
+  if(date>todayISO()) return alert('Payment date cannot be in the future.');
+  const duplicate=activePayments().some(x=>String(x.id)!==String(p.id) && x.person===person && x.date===date && toCents(x.amount)===cents);
+  if(duplicate && !confirm(`Possible duplicate payment: ${person} · ${dateFmt(date)} · ${money(fromCents(cents))}. Save changes anyway?`)) return;
+  const previous={type:'edit',at:new Date().toISOString(),person:p.person,date:p.date,amount:p.amount,note:p.note||''};
+  p.audit=Array.isArray(p.audit)?p.audit:[];
+  p.audit.push(previous);
+  Object.assign(p,{person,date,amount:fromCents(cents),note,updatedAt:new Date().toISOString()});
+  closeEditPaymentModal();
+  persist();
+}
+function voidPayment(id){
+  if(!verifyAdmin('void this saved payment')) return;
+  const p=payments.find(x=>String(x.id)===String(id));
+  if(!p || p.voided) return;
+  if(!confirm(`Void ${p.person} payment of ${money(p.amount)} dated ${dateFmt(p.date)}? It will stay in Payment History but will no longer count in calculations.`)) return;
+  p.audit=Array.isArray(p.audit)?p.audit:[];
+  p.audit.push({type:'void',at:new Date().toISOString(),person:p.person,date:p.date,amount:p.amount,note:p.note||''});
+  p.voided=true;
+  p.voidedAt=new Date().toISOString();
+  p.updatedAt=p.voidedAt;
   persist();
 }
 
@@ -576,21 +808,38 @@ function vacationClass(day){const sv=isOnVacation('Salah',day),av=isOnVacation('
 function renderVacationCalendar(){const root=document.getElementById('vacationCalendar');root.innerHTML='';[2025,2026].forEach(year=>{const y=document.createElement('div');y.className='year-block';y.innerHTML=`<div class="year-title">${year}</div>`;const mg=document.createElement('div');mg.className='months-grid';for(let m=0;m<12;m++){const mc=document.createElement('div');mc.className='month-card';const title=new Date(year,m,1).toLocaleDateString('en-US',{month:'long'});let html=`<div class="month-title">${title}</div><div class="week"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div><div class="days">`;const first=new Date(year,m,1).getDay(), last=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)html+='<span class="day blank"></span>';for(let d=1;d<=last;d++){const day=`${year}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;html+=`<span class="day ${vacationClass(day)}" title="${day}">${d}</span>`;}html+='</div>';mc.innerHTML=html;mg.appendChild(mc);}y.appendChild(mg);root.appendChild(y);});}
 
 function copySummary() {
-  const t=totals();
-  const txt=`Electricity Split Summary\nBills: ${bills.length}\nTotal: ${money(t.total)}\nPaid: ${money(paid)}\nRemaining: ${money(t.remaining)}\nSalah: ${money(t.s)}\nAlaa: ${money(t.a)}\nVacations: ${vacations.length}`;
+  const t=totals(), l=paymentLedger();
+  const settlement=l.interDebt>0 ? `${l.debtor} owes ${l.creditor}: ${money(fromCents(l.interDebt))}` : 'Internal settlement: SAR 0.00';
+  const txt=`Electricity Split Summary
+Bills: ${bills.length}
+Total: ${money(t.total)}
+Paid: ${money(fromCents(l.paidTotal))}
+Outstanding to electricity: ${money(fromCents(l.outstanding))}
+Salah share: ${money(t.s)}
+Salah paid: ${money(fromCents(l.sPaid))}
+Alaa share: ${money(t.a)}
+Alaa paid: ${money(fromCents(l.aPaid))}
+${settlement}
+Overall overpayment: ${money(fromCents(l.overallOverpayment))}
+Payments: ${activePayments().length} active · ${payments.filter(p=>p.voided).length} voided
+Vacations: ${vacations.length}`;
   navigator.clipboard?.writeText(txt).then(()=>alert('Summary copied.'));
 }
 
 function exportCSV() {
-  let rows=[['Bill','From','To','Days','Amount SAR','Salah SAR','Alaa SAR','Split']];
+  let rows=[['BILLS'],['Bill','From','To','Days','Amount SAR','Salah SAR','Alaa SAR','Split']];
   bills.forEach((b,i)=>{const sp=billSplit(b,i);rows.push([b.label,b.start,b.end,sp.days,Number(b.amount).toFixed(2),sp.s.toFixed(2),sp.a.toFixed(2),splitLabel(b,i)])});
+  rows.push([],['PAYMENTS'],['Date','Paid By','Amount SAR','Note / Reference','Status','Created At','Updated At']);
+  [...payments].sort((a,b)=>b.date.localeCompare(a.date)).forEach(p=>rows.push([p.date,p.person,Number(p.amount).toFixed(2),p.note||'',p.voided?'Voided':'Active',p.createdAt||'',p.updatedAt||'']));
+  const l=paymentLedger();
+  rows.push([],['SUMMARY'],['Salah Paid',fromCents(l.sPaid).toFixed(2)],['Alaa Paid',fromCents(l.aPaid).toFixed(2)],['Outstanding to Electricity',fromCents(l.outstanding).toFixed(2)],['Overall Overpayment',fromCents(l.overallOverpayment).toFixed(2)],['Internal Settlement',l.interDebt?`${l.debtor} owes ${l.creditor} ${fromCents(l.interDebt).toFixed(2)}`:'0.00']);
   const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Electricity_Bills_Salah_Alaa.csv'; a.click(); URL.revokeObjectURL(a.href);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Electricity_Bills_and_Payments_Salah_Alaa.csv'; a.click(); URL.revokeObjectURL(a.href);
 }
 
-function renderAll() { renderKPIs(); renderStory(); renderChart(); renderTable(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
-window.addEventListener('load',()=>document.getElementById('unlockPassword')?.focus());
+function renderAll() { renderKPIs(); renderStory(); renderChart(); renderTable(); renderPayments(); renderVacations(); renderCalendarSummary(); if(document.getElementById('calendarPanel').classList.contains('open')) renderVacationCalendar(); }
+window.addEventListener('load',()=>{document.getElementById('unlockPassword')?.focus(); const pd=document.getElementById('paymentDate'); if(pd&&!pd.value) pd.value=todayISO();});
 </script>
 </body>
 </html>
