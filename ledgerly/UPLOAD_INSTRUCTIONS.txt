@@ -1,24 +1,17 @@
-LEDGERLY 3.0.0 — UPLOAD INSTRUCTIONS
+LEDGERLY 3.1.0 UPLOAD
 
-1) FIRST: Open your current Ledgerly and export one backup before replacing app files.
-2) Extract this ZIP.
-3) In GitHub, open:
-   zareifsalah-bit/electricity-split-app / ledgerly
-4) Upload ALL files from this extracted folder to ledgerly and commit them together to main.
-5) The GitHub commit is the deployment boundary. Do not upload half the release now and half later.
-6) Recommended cleanup after the new version is confirmed working: delete obsolete development-only files listed in FILES_TO_DELETE.txt.
-7) Wait for GitHub Pages deployment, then open:
-   https://zareifsalah-bit.github.io/electricity-split-app/ledgerly/
-8) On first load Ledgerly migrates existing data automatically. If the current ledger is encrypted, enter the existing Ledgerly password when prompted.
-9) If an Update Available banner appears, press Reload.
-10) Verify the Saudi Energy Company control figure:
-    Original / liability: SAR 2,620.66
-    Payment:              SAR 1,010.00
-    Remaining:            SAR 1,610.66
-11) Open Settings > Diagnostics and confirm Data health = Reconciled.
-12) Export a NEW Ledgerly 3.0 verified backup after migration.
+1. Export a backup from the currently working Ledgerly 3.0.0 first.
+2. Extract this ZIP.
+3. Upload ALL files from this package into the repository folder: ledgerly
+4. Allow matching files (index.html, service-worker.js, version.json, manifest.webmanifest, etc.) to be replaced.
+5. Commit the upload.
+6. Open the normal Ledgerly GitHub Pages URL.
+7. If an update banner appears, press Reload once.
+8. Because protection is now mandatory, an unprotected existing ledger will show Protect Ledgerly before continuing. Create and confirm a master password and save the recovery key.
+9. Verify Saudi Energy Company remains Original 2,620.66 / Paid 1,010.00 / Remaining 1,610.66.
+10. Test Add Payment from the global button: choose a creditor from the dropdown; saving must be blocked until an attachment is selected.
+11. Test Add Debt: saving must be blocked until an attachment is selected.
+12. Test correcting/voiding a debt and a payment: each must request the master password.
+13. Settings > Report > PDF report must download a .pdf file.
 
-IMPORTANT
-- ledgerly_update.html is now retired and does NOT update financial data.
-- Do not clear browser site data before the migration and new backup are verified.
-- Code rollback and data rollback are separate. A code rollback should not automatically restore older financial data.
+Old 3.0.0 versioned JS/CSS files may remain temporarily; 3.1.0 does not reference them. They can be cleaned after acceptance.

@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Ledgerly · Private Debt Ledger",
+  "name": "Ledgerly \u00b7 Private Debt Ledger",
   "short_name": "Ledgerly",
-  "description": "A private, offline-first personal debt ledger with encrypted local storage, backups and audit history.",
+  "description": "Ledgerly \u2014 a password-protected, offline-first personal debt ledger with mandatory evidence and PDF reporting.",
   "lang": "en",
   "dir": "auto",
   "start_url": "./",
@@ -11,10 +11,28 @@
   "orientation": "portrait-primary",
   "background_color": "#f1f5f2",
   "theme_color": "#0d2f28",
-  "categories": ["finance", "productivity"],
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "icons": [
-    {"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
-    {"src":"./icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

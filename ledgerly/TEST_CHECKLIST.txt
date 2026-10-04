@@ -1,30 +1,20 @@
-LEDGERLY 3.0.0 — RELEASE ACCEPTANCE CHECKLIST
-
-AUTOMATED / BUILD
-[ ] Every JavaScript file parses without syntax errors.
-[ ] Every asset referenced by index.html and service-worker.js exists.
-[ ] Golden arithmetic: 2620.66 - 1010.00 = 1610.66.
-[ ] Money round-trip uses integer halalas.
-[ ] Legacy current-data migration preserves Saudi Energy Company and Samha International Schools.
-[ ] Exact “Samha's School” legacy duplicate is removed only during legacy migration.
-[ ] Old Electricity 600 + 2000 + 1400 seed compatibility migration resolves to 2620.66 / 1010.00 / 1610.66.
-[ ] Reversal returns allocated debt-record remaining correctly.
-[ ] Overpayment diagnostics reject reductions above liability.
-
-MANUAL ON PHONE
-[ ] Existing data appears after upload.
-[ ] Every money display uses two decimal places.
-[ ] Saudi Energy Company shows 2,620.66 / 1,010.00 / 1,610.66.
-[ ] Expand creditor shows Original / Paid / Remaining and full ledger timeline.
-[ ] Add debt works with decimal amount and calendar dates.
-[ ] Add payment allocates correctly.
-[ ] Correction requires reason and password when encrypted.
-[ ] Void keeps the record visible but removes its effect.
-[ ] Reversal creates a separate opposite entry.
-[ ] Backup export succeeds and reports verified checksum.
-[ ] Test Backup opens backup without changing current data.
-[ ] Dark mode / privacy / private screen work.
-[ ] Settings > Diagnostics reports Reconciled.
-[ ] App works after switching phone to airplane mode.
-[ ] Android Back closes an open Ledgerly modal.
-[ ] New app update presents Update Available instead of silently serving mixed files.
+LEDGERLY 3.1.0 ACCEPTANCE CHECKLIST
+[ ] Existing data survives update with exact totals
+[ ] Mandatory security setup appears on an unprotected ledger
+[ ] Reload after setup requires master password
+[ ] Background lock works
+[ ] Debt correction asks for password
+[ ] Debt void asks for password
+[ ] Payment correction asks for password
+[ ] Payment void asks for password
+[ ] Global Add Payment shows creditor dropdown
+[ ] New payment cannot save without attachment
+[ ] New debt cannot save without attachment
+[ ] New payment/debt with attachment saves and attachment opens
+[ ] PDF report downloads and opens
+[ ] Redacted PDF downloads
+[ ] Expanded card has one Original/Paid/Remaining summary only
+[ ] Bottom navigation does not cover final record/action
+[ ] Saudi Energy amounts = 2620.66 / 1010.00 / 1610.66
+[ ] Saudi Energy migrated debt says Effective date not set until corrected
+[ ] Offline reload works after service worker activates

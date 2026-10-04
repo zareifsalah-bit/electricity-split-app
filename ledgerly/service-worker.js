@@ -1,6 +1,6 @@
-const CACHE='ledgerly-shell-3.0.0-20261004';
+const CACHE='ledgerly-shell-3.1.0-20261005-r1';
 const SHELL=[
-  './','./index.html','./styles.3.0.0.css','./app.3.0.0.js','./ledger-core.3.0.0.js','./storage.3.0.0.js','./crypto.3.0.0.js','./migrations.3.0.0.js','./i18n.3.0.0.js',
+  './','./index.html','./styles.3.1.0.css','./app.3.1.0.js','./ledger-core.3.1.0.js','./storage.3.1.0.js','./crypto.3.1.0.js','./migrations.3.1.0.js','./i18n.3.1.0.js','./pdf.3.1.0.js',
   './manifest.webmanifest','./logo.svg','./icon-192.png','./icon-512.png','./icon-maskable-512.png'
 ];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));});

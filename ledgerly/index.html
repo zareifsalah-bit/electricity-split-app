@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./styles.3.0.0.css">
+  <link rel="stylesheet" href="./styles.3.1.0.css">
 </head>
 <body>
   <div id="updateBanner" class="update-banner" hidden><span>Ledgerly update available.</span><button id="reloadUpdateBtn" type="button">Reload</button></div>
@@ -31,18 +31,18 @@
         <button class="icon-btn" id="privacyBtn" type="button" title="Privacy" aria-label="Privacy">◐</button>
         <button class="icon-btn" id="themeBtn" type="button" title="Theme" aria-label="Theme">☾</button>
         <button class="icon-btn" id="settingsBtn" type="button" title="Settings" aria-label="Settings">☰</button>
-        <button class="btn btn-primary desktop-add" id="addDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button>
+        <button class="btn btn-soft desktop-add" id="addPaymentBtn" type="button">+ Payment</button><button class="btn btn-primary desktop-add" id="addDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button>
       </div>
     </header>
 
     <main class="shell">
       <section class="hero" id="overview">
         <div class="hero-main">
-          <div class="hero-kicker"><span class="status-dot" id="connectivityDot"></span><span id="connectivityLabel" data-i18n="online">Online</span><span class="sep">·</span><span id="versionLabel">v3.0.0</span></div>
+          <div class="hero-kicker"><span class="status-dot" id="connectivityDot"></span><span id="connectivityLabel" data-i18n="online">Online</span><span class="sep">·</span><span id="versionLabel">v3.1.0</span></div>
           <span class="eyebrow">Private · local-first · reconciled</span>
           <h1>Debt clarity without the noise.</h1>
           <p>One protected ledger for every creditor, every debt record and every real payment.</p>
-          <div class="hero-actions"><button class="btn btn-primary" id="heroAddDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button><button class="btn btn-ghost-on-dark" id="explainTotalBtn" type="button" data-i18n="explainTotal">Explain total</button></div>
+          <div class="hero-actions"><button class="btn btn-primary" id="heroAddPaymentBtn" type="button">+ Add payment</button><button class="btn btn-ghost-on-dark" id="heroAddDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button><button class="btn btn-ghost-on-dark" id="explainTotalBtn" type="button" data-i18n="explainTotal">Explain total</button></div>
         </div>
         <button class="balance-card" id="balanceCard" type="button" aria-label="Explain total remaining">
           <div class="balance-head"><span data-i18n="totalRemaining">Total remaining</span><span class="health-pill" id="healthPill">✓ Reconciled</span></div>
@@ -87,15 +87,22 @@
       </section>
     </main>
 
-    <footer class="shell footer"><span>Ledgerly · <b id="footerVersion">v3.0.0</b></span><span data-i18n="noForecasts">Actual records are separate from plans and forecasts.</span></footer>
+    <footer class="shell footer"><span>Ledgerly · <b id="footerVersion">v3.1.0</b></span><span data-i18n="noForecasts">Actual records are separate from plans and forecasts.</span></footer>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <a href="#overview"><span>⌂</span><small data-i18n="home">Home</small></a><a href="#creditorsSection"><span>◎</span><small data-i18n="creditors">Creditors</small></a><a href="#activitySection"><span>⌁</span><small data-i18n="activity">Activity</small></a><button id="mobileAddDebtBtn" type="button"><span>＋</span><small data-i18n="addDebt">Add debt</small></button>
+      <a href="#overview"><span>⌂</span><small data-i18n="home">Home</small></a><a href="#creditorsSection"><span>◎</span><small data-i18n="creditors">Creditors</small></a><a href="#activitySection"><span>⌁</span><small data-i18n="activity">Activity</small></a><button id="mobileAddPaymentBtn" type="button"><span>＋</span><small>Payment</small></button><button id="mobileAddDebtBtn" type="button"><span>＋</span><small>Debt</small></button>
     </nav>
   </div>
 
   <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <div class="lock-screen" id="setupScreen" hidden>
+    <div class="lock-card"><img src="./logo.svg" alt="" class="lock-logo"><span class="eyebrow">Required protection</span><h1>Protect Ledgerly before continuing</h1><p>A master password is mandatory for the app and website. It will also be required before correcting or voiding debts and payments.</p>
+      <form id="mandatorySecurityForm"><label>Master password<input id="setupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required></label><label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label><label class="setup-check"><input name="recovery" type="checkbox" checked> Create an offline recovery key</label><div id="setupError" class="form-error"></div><button class="btn btn-primary full" type="submit">Encrypt & open Ledgerly</button></form>
+      <div class="notice" style="margin-top:12px">Keep the password and recovery key safe. Ledgerly cannot read encrypted data without one of them.</div>
+    </div>
+  </div>
 
   <div class="lock-screen" id="lockScreen" hidden>
     <div class="lock-card"><img src="./logo.svg" alt="" class="lock-logo"><span class="eyebrow">Encrypted local ledger</span><h1>Ledgerly is locked</h1><p>Enter your master password, or use the recovery key you saved when protection was enabled.</p>
@@ -110,6 +117,6 @@
 
   <input id="restoreFileInput" type="file" accept="application/json,.json" hidden>
   <input id="attachmentFileInput" type="file" accept="image/*,application/pdf" hidden>
-  <script type="module" src="./app.3.0.0.js"></script>
+  <script type="module" src="./app.3.1.0.js"></script>
 </body>
 </html>
