@@ -1,0 +1,17 @@
+{
+  "name": "Ledgerly · Personal Debt Dashboard",
+  "short_name": "Ledgerly",
+  "description": "A private, offline-first personal debt management dashboard.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f7f3",
+  "theme_color": "#16202a",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "./logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
