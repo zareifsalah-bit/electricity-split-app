@@ -1,4 +1,4 @@
-const CACHE='electricity-split-v11.2.2';
+const CACHE='electricity-split-v11.2.3';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 
 function normalizedRequest(request){

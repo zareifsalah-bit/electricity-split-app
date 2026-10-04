@@ -236,15 +236,30 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
   body.report-print-mode .report-share{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
-/* v11.2.2 · PDF two-page footer layout fix */
+/* v11.2.3 · Keep report metadata on page 2 by embedding it in the final section */
+.report-footer-inline{margin-top:5px;padding-top:4px;border-top:1px solid #dbe3ec;color:#8793a3;font-size:6pt;line-height:1.2;display:flex;justify-content:space-between;gap:10px}
+.report-footer-inline .report-ref{white-space:nowrap}
 @media print{
-  body.report-print-mode .report-footer{
-    margin-top:5px!important;
-    padding-top:4px!important;
-    break-inside:avoid;
-    page-break-inside:avoid;
-  }
+  body.report-print-mode .report-footer-inline{break-inside:avoid;page-break-inside:avoid}
+  body.report-print-mode .report-section{margin-top:12px!important;margin-bottom:12px!important}
 }
+
+/* v11.2.3 · Bilingual PDF report */
+.report-sheet.report-rtl{direction:rtl;font-family:Tahoma,Arial,Helvetica,sans-serif}
+.report-rtl .report-title-wrap,.report-rtl .report-meta,.report-rtl .report-kpi,.report-rtl .report-person-card,.report-rtl .report-vacation-card,.report-rtl .report-settle-card{text-align:right}
+.report-rtl .report-section-head{direction:rtl}
+.report-rtl .report-section-head p{text-align:left}
+.report-rtl .report-table th,.report-rtl .report-table td{text-align:right}
+.report-rtl .report-table .num{direction:ltr;text-align:right!important}
+.report-rtl .report-table .status-col{text-align:center!important}
+.report-rtl .report-table tfoot .total-label{text-align:right!important}
+.report-rtl .report-share{align-items:flex-start}
+.report-rtl .report-share strong,.report-rtl .report-share small,.report-rtl .report-payment-cell small{direction:ltr}
+.report-rtl .report-vac-meta{direction:rtl}
+.report-rtl .report-person-row{direction:rtl}
+.report-rtl .report-footer-inline{direction:rtl}
+.report-rtl .report-footer-inline .report-ref{direction:ltr}
+.report-rtl .report-method,.report-rtl .report-reconcile,.report-rtl .report-share-legend{line-height:1.35}
 
 /* v11 · Stability, integrity, backup & security */
 .status-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
@@ -458,7 +473,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
     </div>
   </section>
 
-  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2.2</span></div>
+  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2.3</span></div>
 </div>
 
 
@@ -504,6 +519,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
       <div class="form-grid">
         <div><label>From Month</label><input id="reportFromMonth" type="month"></div>
         <div><label>To Month</label><input id="reportToMonth" type="month"></div>
+        <div class="full"><label>Report Language</label><select id="reportLanguage"><option value="en">English</option><option value="ar">Arabic</option></select></div>
         <div class="full"><button class="primary" style="width:100%" onclick="generatePDFReport()">Generate PDF Report</button></div>
       </div>
       <div class="report-range-hint">Choose the first and last bill month. FIFO is recalculated from the oldest recorded bill first. The report shows selected-month bill status plus an explicitly labeled all-time settlement position. For the cleanest PDF, disable browser headers and footers in the print dialog. Saved PDF reports are not encrypted.</div>
@@ -555,7 +571,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
 <script>
 const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"sQiopIR4BeKNQ0p5Ac0zfJoZDHzuddt+U33LoO0o2A5cMKK+NrJm7WAThTuR2NbCnJlk2KaP/R0fOaDadMa/RBo1DSltzR3lfTBuLnM90QGRMTri+kZ77CLOJxYQs1fwOUSLQBvHc66TFXuCyZrtNWtVcq1j3Ec848Nvq4A7oBMdwacAWdyzPLLveg6hOPKyIHHCRE5phGT86laUECQo9BPj1Blhu5pLL6+V5vNvEhWotlYcf4EBHVfPb/NL3UX/EPmuImFyyr+OrhZl1G9776XkwJRPe40cwWLb2NvrXLpl7s0x5aL7u/9+Q9RePkqBOKvGzn18L2ifzsao2krtEkHpA8Cz1SAeq3paET7CjJjrmLgTkHV+Deryb0wFH3/yH3HEhitVuPDkAiu09XosvRk5nJK4nxLyY5RQz5Q6pchOVeR8HMc3225V0H/CCHI4FMnf+FClB87m9uD69KwdDeDfQeuU6jTGAQIJNDc+rxjrpHEr4cXn9ws+67Rh0SGcBdQOLfqXRUPiaHgE2eMtu95Ks5F0Rmr9eV81ybk0O3X1HvQYmwjxEjpUwHey7EYDibEmmmbmIVefH0F+1tPdszBbPmYNf0ztDzFXUELRr8hkAI2RmdIEXXLvDCaZqawPOBN/mv88HENchepNdIjwDfBxyyufJMCG+oYwlTrfZpLRvFnk1XWMe8FcGrsPJ+N1KdPPZxl67oGzszp98X2sW1izGg0VtM4Y3T4TxRkefnOF0p328LMfdJs2aUe/1IJlDHE3a53brNUX1StoRAkDld9Mk3+6tyWtGQq9nZ0AbGgZAoebmdDJ+hJ5wmHjs5sol+kHhe1/g7hKExEi0g50pk5InPzhMmMrcXn32UEchms7M+ypLutIbF3Dw+n8vb4jKahuE1o9EvpPM/oC/BsFoufw3j6mPytpxo7WvhYmBNifhz4CBFc1ShSq/jQmMvd1sWny/g02VqwsqLUqcyN/ACWBulqrkgxY4HiK348U01MkOPaihAsq9/ciaMF7+uOye48lt0mtmTB+9gc/pwsybM01eoHB6rWiGNnh5TLk/371KSYGuANmvQat2bk8eZpRxCGNF9GsXjlFkL9ZFyLwjPTsX0jbPef1QdE3/3ylg22DYFMY4xewuvc53ZRT3LnXcZXdv82FbFH2k+fsEZuyY3ewd+/c5y/yJGA3P0+pP4yckiDIwybdwvDDDw4CnYYsCnXiXrOnnWsHz9YnO0NdrbwNQg4BgSCigdsF5qxoqxaRrhIrO11ZhwEO1OFImZa3c1wviF6t/uqrupdJB8fAMn3s542ThGIVWsi3hT8gcUjClj+zyI/FWdPTvci+neJX9w+o4rLoYU8q1xXIEfHbVQwXcia+G/PHNjK0Cp9Faks79Q5kg4+6/7gN/vx1DNLA5lShb5a47aFgy3ihLthGnPGm12RlUgJ+cCN31u83gU7nQlxF/sXXZkCCpImx78MzFa1VzN1w8gL/GoZ3Fhy+KCWuu7DWmxdWcxoOiW4YzlkkOIOk9PlBAlOZsNacRmKaorRq+Wjk91jtOndB1Ix9OCF7bVz9hIcAUypy5RWC9msvJI+uV3I3/higFkIYgn43mI1+tT1JFCNyODrDY/EJlmx8gCSo+go0A1sBu8mEbWsVl1wMxjEXfibFMTCqrtWLVkt5QwtSVRNvqZsk/9CVdQitBOxp1UhfJRP8mUfEJwn/d5RSc+cQMmhzE2qV2EqFwFurCjmR34Wg/Q1JJibBD7Nn6s7pgQL5+70uK1e1cSWJIB1MNcHkf7vRGK6Rd80nTFHfVWjKszFT1FxSNA4HFdEt7Yuuk3l2FtsSAT5IHKnTGwTKIL8oJ+RPpvm/j84VMMcBu+bMBT0PbnR8O8C0DF4uOfTist1BhUzkRzEPVjs5WxDO0yqjmgsC0ovlHkzYikETTopN/mROZ1zvXKN+mHDSnlFY0CKRUv+2HgxcmSLtBgc04zYVk3sYWe9VBNHsfrGOS5maJsw0dqHSEInDKNrmvRRY0LzUS2C1XqltiwmSQxRekGwDEYbwYRoxOagxOEdIBNkLA04DNQPm6BLtC/m7BS3lCzrHEg3aNirJtBJxEHxkhfxIcDFdnEmJMrOOHSDBbmxxK3qtbFqGezteS2YP5T8yBys9yhklR2smy2PYO6XrGDE="};
-const APP_VERSION='11.2.2';
+const APP_VERSION='11.2.3';
 const DATA_SCHEMA_VERSION=7;
 const CURRENCY='SAR';
 const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
@@ -755,15 +771,18 @@ function monthToLabel(value){
   return `${MONTH_NAMES[m-1]} ${y}`;
 }
 const REPORT_MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function reportMonthLabel(value){
+const REPORT_MONTH_SHORT_AR=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function reportMonthLabel(value,lang='en'){
   if(!/^\d{4}-\d{2}$/.test(value||'')) return '';
   const [y,m]=value.split('-').map(Number);
-  return `${REPORT_MONTH_SHORT[m-1]} ${String(y).slice(-2)}`;
+  const months=lang==='ar'?REPORT_MONTH_SHORT_AR:REPORT_MONTH_SHORT;
+  return `${months[m-1]} ${String(y).slice(-2)}`;
 }
-function reportDateFmt(value){
+function reportDateFmt(value,lang='en'){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(value||'')) return String(value||'');
   const [y,m,d]=value.split('-').map(Number);
-  return `${String(d).padStart(2,'0')} ${REPORT_MONTH_SHORT[m-1]} ${String(y).slice(-2)}`;
+  const months=lang==='ar'?REPORT_MONTH_SHORT_AR:REPORT_MONTH_SHORT;
+  return `${String(d).padStart(2,'0')} ${months[m-1]} ${String(y).slice(-2)}`;
 }
 function labelToMonth(label,fallbackDate=''){
   const m=String(label||'').match(/^([A-Za-z]+)\s+(\d{4})$/);
@@ -1260,18 +1279,55 @@ function monthEndISO(monthKey){
   const [y,m]=monthKey.split('-').map(Number);
   return new Date(y,m,0,12).toISOString().slice(0,10);
 }
-function reportVacationCards(person,coverageStart,coverageEnd){
+const REPORT_I18N={
+  en:{
+    title:'Electricity Split Report',kicker:'Salah & Alaa · Shared Meter · FIFO Settlement Ledger',reportingPeriod:'Reporting Period',statusDate:'Status Date',reportReference:'Report Reference',
+    totalBills:'Total Bills',billingCycles:'billing cycles',fifoPaid:'FIFO Paid',allocatedSelected:'Allocated to selected bills',remaining:'Remaining',outstandingSelected:'Outstanding on selected bills',paymentProgress:'Payment Progress',
+    monthlyLedger:'Monthly Billing Ledger',ledgerHint:'Rows newest first · FIFO calculations oldest first · Amounts in SAR',billMonth:'Bill Month',periodVacation:'Billing Period / Vacation',total:'Total',salahShare:'Salah Share',alaaShare:'Alaa Share',paymentStatus:'Payment Status',selectedTotal:'Selected Period Total',paid:'Paid',
+    paidStatus:'Paid',partialStatus:'Partially Paid',unpaidStatus:'Unpaid',fullySettled:'Fully settled by FIFO',partiallySettled:'Partially settled',noFifo:'No FIFO payment allocated',
+    vacationDetail:'Vacation detail',salahAway:'Salah away',alaaAway:'Alaa away',bothAway:'Both away',fullCycle:'Full cycle',vacAdjusted:'Vacation-adjusted split',vacActivity:'Vacation activity · split remains 50/50',
+    vacationLegend:'Both-away days remain shared 50/50. Share percentages are calculated from the final rounded SAR amounts; minor SAR 0.01 differences may result from cent rounding.',
+    shareSummary:'Account Share Summary',shareSummaryHint:'Vacation-adjusted share and FIFO payment allocation by person',shareSelected:'Share of selected bills',appliedOwn:'Applied to own share (FIFO)',stillOwed:'Amount Still Owed',ofBills:'of bills',
+    vacationAdjustments:'Vacation Adjustments',vacationAdjustmentsHint:'Only vacation days intersecting the selected billing cycles are shown',noVacation:'No vacation recorded for the selected billing cycles.',days:'days',
+    settlementPosition:'Settlement Position',settlementHint:'All-time position as of the report generation time',salahActual:'Salah Actual Payments - All Time',alaaActual:'Alaa Actual Payments - All Time',internalSettlement:'Internal Settlement',outstandingElectricity:'Outstanding to Electricity - All Recorded Bills',paidOnBehalf:'Paid on Behalf of',electricityCredit:'Electricity Credit / Overpayment',
+    noSettlement:'No internal settlement currently due',owes:'owes',
+    reconciliation:'Reconciliation',actualRecorded:'Actual payments recorded',appliedElectricity:'Applied to electricity bills',credit:'Electricity credit',reconcileNote:'Paid-on-behalf amounts arise only when one person has paid above their own vacation-adjusted share while the other still owes.',
+    fifoMethod:'FIFO methodology',fifoText:"active payments are applied to the oldest recorded bill obligations first. The bill payment status reflects settlement with the electricity provider; each person's FIFO allocation is tracked separately against that person's vacation-adjusted share for internal settlement. Status labels are Paid, Partially Paid, and Unpaid.",
+    footer:'Electricity Split · FIFO financial settlement report · Generated locally from encrypted dashboard data'
+  },
+  ar:{
+    title:'تقرير توزيع فاتورة الكهرباء',kicker:'صلاح وعلاء · عداد مشترك · سجل التسوية بنظام FIFO (الأقدم أولاً)',reportingPeriod:'فترة التقرير',statusDate:'تاريخ الحالة',reportReference:'مرجع التقرير',
+    totalBills:'إجمالي الفواتير',billingCycles:'دورة فوترة',fifoPaid:'المدفوع الموزع بنظام FIFO',allocatedSelected:'موزع على الفواتير المحددة',remaining:'المتبقي',outstandingSelected:'المستحق على الفواتير المحددة',paymentProgress:'نسبة السداد',
+    monthlyLedger:'سجل الفواتير الشهري',ledgerHint:'الصفوف من الأحدث للأقدم · حسابات FIFO من الأقدم للأحدث · المبالغ بالريال السعودي',billMonth:'شهر الفاتورة',periodVacation:'فترة الفاتورة / الإجازة',total:'الإجمالي',salahShare:'نصيب صلاح',alaaShare:'نصيب علاء',paymentStatus:'حالة السداد',selectedTotal:'إجمالي الفترة المحددة',paid:'مدفوع',
+    paidStatus:'مدفوعة',partialStatus:'مدفوعة جزئيًا',unpaidStatus:'غير مدفوعة',fullySettled:'مسددة بالكامل بنظام FIFO',partiallySettled:'مسددة جزئيًا',noFifo:'لم يخصص لها سداد بنظام FIFO',
+    vacationDetail:'تفاصيل الإجازات',salahAway:'صلاح في إجازة',alaaAway:'علاء في إجازة',bothAway:'كلاهما في إجازة',fullCycle:'كامل الدورة',vacAdjusted:'توزيع معدل حسب الإجازات',vacActivity:'توجد إجازات · التوزيع يظل 50/50',
+    vacationLegend:'أيام إجازة الطرفين تظل موزعة 50/50. نسب الأنصبة محسوبة من المبالغ النهائية بعد التقريب؛ وقد يظهر فرق 0.01 ريال بسبب تقريب الهللات.',
+    shareSummary:'ملخص توزيع الأنصبة',shareSummaryHint:'الأنصبة المعدلة حسب الإجازات وتوزيع السداد بنظام FIFO لكل شخص',shareSelected:'نصيبه من الفواتير المحددة',appliedOwn:'المسدد على نصيبه (FIFO)',stillOwed:'المبلغ المتبقي عليه',ofBills:'من الفواتير',
+    vacationAdjustments:'تعديلات الإجازات',vacationAdjustmentsHint:'تعرض فقط أيام الإجازات المتداخلة مع دورات الفواتير المحددة',noVacation:'لا توجد إجازة مسجلة ضمن دورات الفواتير المحددة.',days:'يوم',
+    settlementPosition:'موقف التسوية',settlementHint:'الموقف التراكمي حتى وقت إنشاء التقرير',salahActual:'إجمالي مدفوعات صلاح - كل الفترات',alaaActual:'إجمالي مدفوعات علاء - كل الفترات',internalSettlement:'التسوية الداخلية',outstandingElectricity:'المستحق لشركة الكهرباء - جميع الفواتير المسجلة',paidOnBehalf:'دفع نيابة عن',electricityCredit:'رصيد دائن / دفعة زائدة للكهرباء',
+    noSettlement:'لا توجد تسوية داخلية مستحقة حاليًا',owes:'مدين لـ',
+    reconciliation:'المطابقة',actualRecorded:'إجمالي المدفوعات المسجلة',appliedElectricity:'المطبق على فواتير الكهرباء',credit:'رصيد الكهرباء الدائن',reconcileNote:'ينشأ المبلغ المدفوع نيابة عن الطرف الآخر فقط عندما يدفع أحد الطرفين أكثر من نصيبه المعدل حسب الإجازات بينما يظل على الطرف الآخر مبلغ مستحق.',
+    fifoMethod:'منهجية FIFO',fifoText:'يتم توزيع المدفوعات الفعالة على أقدم التزامات الفواتير أولًا. وتعكس حالة سداد الفاتورة التسوية مع شركة الكهرباء، بينما يتم تتبع توزيع مدفوعات كل شخص بشكل منفصل على أقدم نصيب مستحق له بعد تعديل الإجازات لأغراض التسوية الداخلية. حالات السداد: مدفوعة، مدفوعة جزئيًا، وغير مدفوعة.',
+    footer:'تقرير توزيع الكهرباء · تسوية مالية بنظام FIFO · تم إنشاؤه محليًا من بيانات لوحة التحكم المشفرة'
+  }
+};
+function reportT(lang,key){return REPORT_I18N[lang]?.[key]??REPORT_I18N.en[key]??key;}
+function reportPersonName(name,lang){if(lang!=='ar')return name;return name==='Salah'?'صلاح':name==='Alaa'?'علاء':name;}
+function reportMoney(cents,lang){return `${lang==='ar'?'ر.س':'SAR'} ${reportNumber(cents)}`;}
+function reportBillingCycleLabel(count,lang){return lang==='ar'?(count===1?'دورة فوترة':'دورات فوترة'):(count===1?'billing cycle':'billing cycles');}
+function reportVacationCards(person,coverageStart,coverageEnd,lang='en'){
   const matches=vacations.filter(v=>v.person===person && v.end>=coverageStart && v.start<=coverageEnd).sort((a,b)=>a.start.localeCompare(b.start));
-  if(!matches.length) return '<div class="report-empty">No vacation recorded for the selected billing cycles.</div>';
+  if(!matches.length) return `<div class="report-empty">${reportT(lang,'noVacation')}</div>`;
   return matches.map(v=>{
     const start=v.start<coverageStart?coverageStart:v.start;
     const end=v.end>coverageEnd?coverageEnd:v.end;
-    return `<div class="report-vacation-item"><div class="report-vacation-dates"><strong>${reportDateFmt(start)}</strong> &rarr; <strong>${reportDateFmt(end)}</strong></div><div class="report-vacation-days">${daysInclusive(start,end)} days</div></div>`;
+    return `<div class="report-vacation-item"><div class="report-vacation-dates"><strong>${reportDateFmt(start,lang)}</strong> &rarr; <strong>${reportDateFmt(end,lang)}</strong></div><div class="report-vacation-days">${daysInclusive(start,end)} ${reportT(lang,'days')}</div></div>`;
   }).join('');
 }
-function reportStatusBadge(allocation){
+function reportStatusBadge(allocation,lang='en'){
   const st=billPaymentStatus(allocation);
-  return `<span class="status-badge status-${st.key}">${st.label}</span>`;
+  const label=st.key==='paid'?reportT(lang,'paidStatus'):st.key==='partial'?reportT(lang,'partialStatus'):reportT(lang,'unpaidStatus');
+  return `<span class="status-badge status-${st.key}">${label}</span>`;
 }
 function reportNumber(cents){return fromCents(cents).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function billVacationBreakdown(b){
@@ -1287,28 +1343,28 @@ function billVacationBreakdown(b){
   }
   return {days,salahOnly,alaaOnly,both,normal,affected:(salahOnly+alaaOnly+both)>0,adjusted:salahOnly!==alaaOnly};
 }
-function reportVacationBadges(b){
+function reportVacationBadges(b,lang='en'){
   const d=billVacationBreakdown(b);
   if(!d.affected) return '';
   const label=(kind,count)=>{
     if(!count) return '';
     const full=count===d.days;
-    if(kind==='salah') return `<span class="report-vac-pill salah">Salah away · ${full?'Full cycle':count+'d'}</span>`;
-    if(kind==='alaa') return `<span class="report-vac-pill alaa">Alaa away · ${full?'Full cycle':count+'d'}</span>`;
-    return `<span class="report-vac-pill both">Both away · ${full?'Full cycle':count+'d'}</span>`;
+    const text=kind==='salah'?reportT(lang,'salahAway'):kind==='alaa'?reportT(lang,'alaaAway'):reportT(lang,'bothAway');
+    return `<span class="report-vac-pill ${kind}">${text} · ${full?reportT(lang,'fullCycle'):count+(lang==='ar'?' يوم':'d')}</span>`;
   };
-  return `<div class="report-vac-meta">${label('salah',d.salahOnly)}${label('alaa',d.alaaOnly)}${label('both',d.both)}</div><div class="report-split-note">${d.adjusted?'Vacation-adjusted split':'Vacation activity · split remains 50/50'}</div>`;
+  return `<div class="report-vac-meta">${label('salah',d.salahOnly)}${label('alaa',d.alaaOnly)}${label('both',d.both)}</div><div class="report-split-note">${d.adjusted?reportT(lang,'vacAdjusted'):reportT(lang,'vacActivity')}</div>`;
 }
 function reportShareCell(cents,totalC,person,affected){
   const pct=totalC?cents/totalC*100:50;
   return `<div class="report-share ${person.toLowerCase()} ${affected?'affected':''}"><strong>${reportNumber(cents)}</strong><small>${pct.toFixed(1)}%</small></div>`;
 }
-function reportPaymentCell(x){
-  return `<div class="report-payment-cell">${reportStatusBadge(x)}<small>Paid ${reportNumber(x.overallPaid)} · Remaining ${reportNumber(x.overallRemaining)}</small></div>`;
+function reportPaymentCell(x,lang='en'){
+  return `<div class="report-payment-cell">${reportStatusBadge(x,lang)}<small>${reportT(lang,'paid')} ${reportNumber(x.overallPaid)} · ${reportT(lang,'remaining')} ${reportNumber(x.overallRemaining)}</small></div>`;
 }
 function generatePDFReport(){
   const from=document.getElementById('reportFromMonth').value;
   const to=document.getElementById('reportToMonth').value;
+  const lang=document.getElementById('reportLanguage')?.value==='ar'?'ar':'en';
   if(!from||!to) return alert('Please choose From Month and To Month.');
   if(from>to) return alert('From Month cannot be after To Month.');
   const selected=[...bills].filter(b=>{const k=billMonthKey(b);return k>=from&&k<=to;}).sort((a,b)=>{
@@ -1335,10 +1391,10 @@ function generatePDFReport(){
   const coverageStart=selected.reduce((m,b)=>!m||b.start<m?b.start:m,'');
   const coverageEnd=selected.reduce((m,b)=>!m||b.end>m?b.end:m,'');
   const now=new Date();
-  const generated=`${String(now.getDate()).padStart(2,'0')} ${REPORT_MONTH_SHORT[now.getMonth()]} ${String(now.getFullYear()).slice(-2)}, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const generated=`${String(now.getDate()).padStart(2,'0')} ${(lang==='ar'?REPORT_MONTH_SHORT_AR:REPORT_MONTH_SHORT)[now.getMonth()]} ${String(now.getFullYear()).slice(-2)}, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const reportRef=`ESR-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
   const ledger=paymentLedger();
-  const settlement=ledger.interDebt>0?`${ledger.debtor} owes ${ledger.creditor} ${money(fromCents(ledger.interDebt))}`:'No internal settlement currently due';
+  const settlement=ledger.interDebt>0?(lang==='ar'?`${reportPersonName(ledger.debtor,lang)} ${reportT(lang,'owes')} ${reportPersonName(ledger.creditor,lang)} ${reportMoney(ledger.interDebt,lang)}`:`${ledger.debtor} owes ${ledger.creditor} ${reportMoney(ledger.interDebt,lang)}`):reportT(lang,'noSettlement');
   const reportIntegrityErrors=[];
   selected.forEach(b=>{
     const x=alloc.byBill.get(String(b.id));
@@ -1356,84 +1412,83 @@ function generatePDFReport(){
     const x=alloc.byBill.get(String(b.id));
     const bd=billVacationBreakdown(b);
     return `<tr>
-      <td class="bill-month">${reportMonthLabel(billMonthKey(b))}</td>
-      <td class="period">${reportDateFmt(b.start)} - ${reportDateFmt(b.end)}${reportVacationBadges(b)}</td>
+      <td class="bill-month">${reportMonthLabel(billMonthKey(b),lang)}</td>
+      <td class="period">${reportDateFmt(b.start,lang)} - ${reportDateFmt(b.end,lang)}${reportVacationBadges(b,lang)}</td>
       <td class="num">${reportNumber(x.total)}</td>
       <td class="num">${reportShareCell(x.sShare,x.total,'Salah',bd.affected)}</td>
       <td class="num">${reportShareCell(x.aShare,x.total,'Alaa',bd.affected)}</td>
-      <td class="status-col">${reportPaymentCell(x)}</td>
+      <td class="status-col">${reportPaymentCell(x,lang)}</td>
     </tr>`;
   }).join('');
 
-  const html=`<div class="report-sheet">
+  const html=`<div class="report-sheet ${lang==='ar'?'report-rtl':''}" lang="${lang}" dir="${lang==='ar'?'rtl':'ltr'}">
     <header class="report-hero">
-      <div class="report-brand"><div class="report-logo">&#9889;</div><div class="report-title-wrap"><div class="report-title">Electricity Split Report</div><div class="report-kicker">Salah &amp; Alaa · Shared Meter · FIFO Settlement Ledger</div></div></div>
+      <div class="report-brand"><div class="report-logo">&#9889;</div><div class="report-title-wrap"><div class="report-title">${reportT(lang,'title')}</div><div class="report-kicker">${reportT(lang,'kicker')}</div></div></div>
       <div class="report-meta-grid">
-        <div class="report-meta"><span>Reporting Period</span><strong>${reportMonthLabel(from)} - ${reportMonthLabel(to)}</strong></div>
-        <div class="report-meta"><span>Status Date</span><strong>${generated}</strong></div>
-        <div class="report-meta"><span>Report Reference</span><strong>${reportRef}</strong></div>
+        <div class="report-meta"><span>${reportT(lang,'reportingPeriod')}</span><strong>${reportMonthLabel(from,lang)} - ${reportMonthLabel(to,lang)}</strong></div>
+        <div class="report-meta"><span>${reportT(lang,'statusDate')}</span><strong>${generated}</strong></div>
+        <div class="report-meta"><span>${reportT(lang,'reportReference')}</span><strong>${reportRef}</strong></div>
       </div>
     </header>
 
     <section class="report-kpis">
-      <div class="report-kpi"><span>Total Bills</span><strong>${money(fromCents(total))}</strong><small>${selected.length} billing cycle${selected.length===1?'':'s'}</small></div>
-      <div class="report-kpi paid"><span>FIFO Paid</span><strong>${money(fromCents(paid))}</strong><small>Allocated to selected bills</small></div>
-      <div class="report-kpi remaining"><span>Remaining</span><strong>${money(fromCents(remaining))}</strong><small>Outstanding on selected bills</small></div>
-      <div class="report-kpi rate"><span>Payment Progress</span><strong>${paidPct.toFixed(1)}%</strong><div class="report-progress"><i style="width:${paidPct.toFixed(2)}%"></i></div></div>
+      <div class="report-kpi"><span>${reportT(lang,'totalBills')}</span><strong>${reportMoney(total,lang)}</strong><small>${selected.length} ${reportBillingCycleLabel(selected.length,lang)}</small></div>
+      <div class="report-kpi paid"><span>${reportT(lang,'fifoPaid')}</span><strong>${reportMoney(paid,lang)}</strong><small>${reportT(lang,'allocatedSelected')}</small></div>
+      <div class="report-kpi remaining"><span>${reportT(lang,'remaining')}</span><strong>${reportMoney(remaining,lang)}</strong><small>${reportT(lang,'outstandingSelected')}</small></div>
+      <div class="report-kpi rate"><span>${reportT(lang,'paymentProgress')}</span><strong>${paidPct.toFixed(1)}%</strong><div class="report-progress"><i style="width:${paidPct.toFixed(2)}%"></i></div></div>
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Monthly Billing Ledger</h2><p>Rows newest first · FIFO calculations oldest first · Amounts in SAR</p></div>
-      <table class="report-table"><colgroup><col style="width:11%"><col style="width:27%"><col style="width:11%"><col style="width:14%"><col style="width:14%"><col style="width:23%"></colgroup><thead><tr><th>Bill Month</th><th>Billing Period / Vacation</th><th style="text-align:right">Total</th><th class="share-head-salah" style="text-align:right">Salah Share</th><th class="share-head-alaa" style="text-align:right">Alaa Share</th><th style="text-align:center">Payment Status</th></tr></thead><tbody>${billRows}</tbody><tfoot><tr><td colspan="2" class="total-label">Selected Period Total</td><td class="num">${reportNumber(total)}</td><td class="num">${reportNumber(sShare)}</td><td class="num">${reportNumber(aShare)}</td><td class="total-pay">Paid ${reportNumber(paid)} · Remaining ${reportNumber(remaining)}</td></tr></tfoot></table>
-      <div class="report-status-legend"><strong>Payment status</strong><span class="legend-pair"><span class="legend-badge paid">Paid</span><span>Fully settled by FIFO</span></span><span class="legend-pair"><span class="legend-badge partial">Partially Paid</span><span>Partially settled</span></span><span class="legend-pair"><span class="legend-badge unpaid">Unpaid</span><span>No FIFO payment allocated</span></span></div>
-      <div class="report-share-legend"><strong>Vacation detail</strong><span class="report-vac-pill salah">Salah away</span><span class="report-vac-pill alaa">Alaa away</span><span class="report-vac-pill both">Both away</span><span class="note">Both-away days remain shared 50/50. Share percentages are calculated from the final rounded SAR amounts; minor SAR 0.01 differences may result from cent rounding.</span></div>
+      <div class="report-section-head"><h2>${reportT(lang,'monthlyLedger')}</h2><p>${reportT(lang,'ledgerHint')}</p></div>
+      <table class="report-table"><colgroup><col style="width:11%"><col style="width:27%"><col style="width:11%"><col style="width:14%"><col style="width:14%"><col style="width:23%"></colgroup><thead><tr><th>${reportT(lang,'billMonth')}</th><th>${reportT(lang,'periodVacation')}</th><th style="text-align:right">${reportT(lang,'total')}</th><th class="share-head-salah" style="text-align:right">${reportT(lang,'salahShare')}</th><th class="share-head-alaa" style="text-align:right">${reportT(lang,'alaaShare')}</th><th style="text-align:center">${reportT(lang,'paymentStatus')}</th></tr></thead><tbody>${billRows}</tbody><tfoot><tr><td colspan="2" class="total-label">${reportT(lang,'selectedTotal')}</td><td class="num">${reportNumber(total)}</td><td class="num">${reportNumber(sShare)}</td><td class="num">${reportNumber(aShare)}</td><td class="total-pay">${reportT(lang,'paid')} ${reportNumber(paid)} · ${reportT(lang,'remaining')} ${reportNumber(remaining)}</td></tr></tfoot></table>
+      <div class="report-status-legend"><strong>${reportT(lang,'paymentStatus')}</strong><span class="legend-pair"><span class="legend-badge paid">${reportT(lang,'paidStatus')}</span><span>${reportT(lang,'fullySettled')}</span></span><span class="legend-pair"><span class="legend-badge partial">${reportT(lang,'partialStatus')}</span><span>${reportT(lang,'partiallySettled')}</span></span><span class="legend-pair"><span class="legend-badge unpaid">${reportT(lang,'unpaidStatus')}</span><span>${reportT(lang,'noFifo')}</span></span></div>
+      <div class="report-share-legend"><strong>${reportT(lang,'vacationDetail')}</strong><span class="report-vac-pill salah">${reportT(lang,'salahAway')}</span><span class="report-vac-pill alaa">${reportT(lang,'alaaAway')}</span><span class="report-vac-pill both">${reportT(lang,'bothAway')}</span><span class="note">${reportT(lang,'vacationLegend')}</span></div>
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Account Share Summary</h2><p>Vacation-adjusted share and FIFO payment allocation by person</p></div>
+      <div class="report-section-head"><h2>${reportT(lang,'shareSummary')}</h2><p>${reportT(lang,'shareSummaryHint')}</p></div>
       <div class="report-person-grid">
-        <div class="report-person-card salah"><div class="report-person-top"><h3>Salah</h3><span class="share-pct">${sPct.toFixed(2)}% of bills</span></div><div class="report-person-body">
-          <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(sShare))}</strong></div>
-          <div class="report-person-row"><span>Applied to own share (FIFO)</span><strong>${money(fromCents(sPaid))}</strong></div>
-          <div class="report-person-row"><span>Amount Still Owed</span><strong>${money(fromCents(sRemaining))}</strong></div>
-          <div class="report-person-progress-label"><span>Payment progress</span><strong>${sPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${sPaidPct.toFixed(2)}%"></i></div>
+        <div class="report-person-card salah"><div class="report-person-top"><h3>${reportPersonName('Salah',lang)}</h3><span class="share-pct">${sPct.toFixed(2)}% ${reportT(lang,'ofBills')}</span></div><div class="report-person-body">
+          <div class="report-person-row"><span>${reportT(lang,'shareSelected')}</span><strong>${reportMoney(sShare,lang)}</strong></div>
+          <div class="report-person-row"><span>${reportT(lang,'appliedOwn')}</span><strong>${reportMoney(sPaid,lang)}</strong></div>
+          <div class="report-person-row"><span>${reportT(lang,'stillOwed')}</span><strong>${reportMoney(sRemaining,lang)}</strong></div>
+          <div class="report-person-progress-label"><span>${reportT(lang,'paymentProgress')}</span><strong>${sPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${sPaidPct.toFixed(2)}%"></i></div>
         </div></div>
-        <div class="report-person-card alaa"><div class="report-person-top"><h3>Alaa</h3><span class="share-pct">${aPct.toFixed(2)}% of bills</span></div><div class="report-person-body">
-          <div class="report-person-row"><span>Share of selected bills</span><strong>${money(fromCents(aShare))}</strong></div>
-          <div class="report-person-row"><span>Applied to own share (FIFO)</span><strong>${money(fromCents(aPaid))}</strong></div>
-          <div class="report-person-row"><span>Amount Still Owed</span><strong>${money(fromCents(aRemaining))}</strong></div>
-          <div class="report-person-progress-label"><span>Payment progress</span><strong>${aPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${aPaidPct.toFixed(2)}%"></i></div>
+        <div class="report-person-card alaa"><div class="report-person-top"><h3>${reportPersonName('Alaa',lang)}</h3><span class="share-pct">${aPct.toFixed(2)}% ${reportT(lang,'ofBills')}</span></div><div class="report-person-body">
+          <div class="report-person-row"><span>${reportT(lang,'shareSelected')}</span><strong>${reportMoney(aShare,lang)}</strong></div>
+          <div class="report-person-row"><span>${reportT(lang,'appliedOwn')}</span><strong>${reportMoney(aPaid,lang)}</strong></div>
+          <div class="report-person-row"><span>${reportT(lang,'stillOwed')}</span><strong>${reportMoney(aRemaining,lang)}</strong></div>
+          <div class="report-person-progress-label"><span>${reportT(lang,'paymentProgress')}</span><strong>${aPaidPct.toFixed(1)}%</strong></div><div class="report-person-progress"><i style="width:${aPaidPct.toFixed(2)}%"></i></div>
         </div></div>
       </div>
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Vacation Adjustments</h2><p>Only vacation days intersecting the selected billing cycles are shown</p></div>
+      <div class="report-section-head"><h2>${reportT(lang,'vacationAdjustments')}</h2><p>${reportT(lang,'vacationAdjustmentsHint')}</p></div>
       <div class="report-vacation-grid">
-        <div class="report-vacation-card"><h3>Salah</h3>${reportVacationCards('Salah',coverageStart,coverageEnd)}</div>
-        <div class="report-vacation-card"><h3>Alaa</h3>${reportVacationCards('Alaa',coverageStart,coverageEnd)}</div>
+        <div class="report-vacation-card"><h3>${reportPersonName('Salah',lang)}</h3>${reportVacationCards('Salah',coverageStart,coverageEnd,lang)}</div>
+        <div class="report-vacation-card"><h3>${reportPersonName('Alaa',lang)}</h3>${reportVacationCards('Alaa',coverageStart,coverageEnd,lang)}</div>
       </div>
     </section>
 
     <section class="report-section">
-      <div class="report-section-head"><h2>Settlement Position</h2><p>All-time position as of the report generation time</p></div>
+      <div class="report-section-head"><h2>${reportT(lang,'settlementPosition')}</h2><p>${reportT(lang,'settlementHint')}</p></div>
       <div class="report-settlement">
-        <div class="report-settle-card"><span>Salah Actual Payments - All Time</span><strong>${money(fromCents(ledger.sPaid))}</strong></div>
-        <div class="report-settle-card"><span>Alaa Actual Payments - All Time</span><strong>${money(fromCents(ledger.aPaid))}</strong></div>
-        <div class="report-settle-card"><span>Internal Settlement</span><strong>${escapeHtml(settlement)}</strong></div>
-        <div class="report-settle-card"><span>Outstanding to Electricity - All Recorded Bills</span><strong>${money(fromCents(ledger.outstanding))}</strong></div>
+        <div class="report-settle-card"><span>${reportT(lang,'salahActual')}</span><strong>${reportMoney(ledger.sPaid,lang)}</strong></div>
+        <div class="report-settle-card"><span>${reportT(lang,'alaaActual')}</span><strong>${reportMoney(ledger.aPaid,lang)}</strong></div>
+        <div class="report-settle-card"><span>${reportT(lang,'internalSettlement')}</span><strong>${escapeHtml(settlement)}</strong></div>
+        <div class="report-settle-card"><span>${reportT(lang,'outstandingElectricity')}</span><strong>${reportMoney(ledger.outstanding,lang)}</strong></div>
       </div>
-      ${(ledger.interDebt>0||ledger.overallOverpayment>0)?`<div class="report-settlement" style="margin-top:8px">${ledger.interDebt>0?`<div class="report-settle-card"><span>${ledger.creditor} Paid on Behalf of ${ledger.debtor}</span><strong class="report-credit">${money(fromCents(ledger.interDebt))}</strong></div>`:''}${ledger.overallOverpayment>0?`<div class="report-settle-card"><span>Electricity Credit / Overpayment</span><strong class="report-credit">${money(fromCents(ledger.overallOverpayment))}</strong></div>`:''}</div>`:''}
-      <div class="report-reconcile"><strong>Reconciliation:</strong> Actual payments recorded: <strong>${money(fromCents(ledger.paidTotal))}</strong> · Applied to electricity bills: <strong>${money(fromCents(Math.min(ledger.paidTotal,ledger.totalC)))}</strong>${ledger.overallOverpayment>0?` · Electricity credit: <strong>${money(fromCents(ledger.overallOverpayment))}</strong>`:''}. Paid-on-behalf amounts arise only when one person has paid above their own vacation-adjusted share while the other still owes.</div>
-      <div class="report-method"><strong>FIFO methodology:</strong> active payments are applied to the oldest recorded bill obligations first. The bill payment status reflects settlement with the electricity provider; each person's FIFO allocation is tracked separately against that person's vacation-adjusted share for internal settlement. Status labels are <strong>Paid</strong>, <strong>Partially Paid</strong>, and <strong>Unpaid</strong>.</div>
+      ${(ledger.interDebt>0||ledger.overallOverpayment>0)?`<div class="report-settlement" style="margin-top:8px">${ledger.interDebt>0?`<div class="report-settle-card"><span>${reportPersonName(ledger.creditor,lang)} ${reportT(lang,'paidOnBehalf')} ${reportPersonName(ledger.debtor,lang)}</span><strong class="report-credit">${reportMoney(ledger.interDebt,lang)}</strong></div>`:''}${ledger.overallOverpayment>0?`<div class="report-settle-card"><span>${reportT(lang,'electricityCredit')}</span><strong class="report-credit">${reportMoney(ledger.overallOverpayment,lang)}</strong></div>`:''}</div>`:''}
+      <div class="report-reconcile"><strong>${reportT(lang,'reconciliation')}:</strong> ${reportT(lang,'actualRecorded')}: <strong>${reportMoney(ledger.paidTotal,lang)}</strong> · ${reportT(lang,'appliedElectricity')}: <strong>${reportMoney(Math.min(ledger.paidTotal,ledger.totalC),lang)}</strong>${ledger.overallOverpayment>0?` · ${reportT(lang,'credit')}: <strong>${reportMoney(ledger.overallOverpayment,lang)}</strong>`:''}. ${reportT(lang,'reconcileNote')}</div>
+      <div class="report-method"><strong>${reportT(lang,'fifoMethod')}:</strong> ${reportT(lang,'fifoText')}</div>
+      <div class="report-footer-inline"><span>${reportT(lang,'footer')} · App v${APP_VERSION}</span><span class="report-ref">${reportRef}</span></div>
     </section>
-
-    <footer class="report-footer"><span>Electricity Split · FIFO financial settlement report · Generated locally from encrypted dashboard data · App v${APP_VERSION}</span><span class="report-ref">${reportRef}</span></footer>
   </div>`;
   document.getElementById('reportPrintArea').innerHTML=html;
   closeReportModal();
   reportPreviousTitle=document.title;
-  document.title=`Electricity_Split_Report_${from}_to_${to}`;
+  document.title=`Electricity_Split_Report_${lang==='ar'?'AR':'EN'}_${from}_to_${to}`;
   document.body.classList.add('report-print-mode');
   setTimeout(()=>window.print(),100);
 }
