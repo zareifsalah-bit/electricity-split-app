@@ -1,0 +1,6 @@
+CANONICAL BASELINE
+Ledgerly 3.0.0
+Schema 4
+Build 2026-10-04
+
+All future Ledgerly releases should be built from this baseline (or a later explicitly approved baseline), never from an older ZIP selected by filename/date alone.

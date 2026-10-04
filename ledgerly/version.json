@@ -1,0 +1,10 @@
+{
+  "app": "Ledgerly",
+  "version": "3.0.0",
+  "schemaVersion": 4,
+  "build": "2026-10-04",
+  "baseline": "Ledgerly 3.0.0 Approved Baseline Candidate",
+  "currency": "SAR",
+  "storage": "IndexedDB",
+  "sync": "disabled-on-static-github-pages"
+}

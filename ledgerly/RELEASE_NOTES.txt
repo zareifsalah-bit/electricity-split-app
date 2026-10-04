@@ -1,0 +1,117 @@
+LEDGERLY 3.0.0 — APPROVED BASELINE CANDIDATE
+Build date: 2026-10-04
+Schema: 4
+Storage: IndexedDB source of truth
+Currency: SAR only
+
+WHAT THIS RELEASE CHANGES
+=========================
+This is the consolidation release that implements the full review roadmap in one architecture instead of stacking more patches on the old single-file app.
+
+DATA SAFETY / INTEGRITY
+- IndexedDB is now the source of truth; localStorage is only used for a non-sensitive install marker and legacy migration detection.
+- Every state write uses a revision number and rejects stale-tab overwrites.
+- Browser write locking (navigator.locks when available) + BroadcastChannel multi-tab revision notifications.
+- Atomic state writes and an operation journal for interrupted-operation detection.
+- Automatic rollback snapshots before sensitive writes.
+- Safe Mode prevents writes when schema/data integrity checks fail.
+- Emergency raw backup is available for recovery.
+- Persistent browser storage is requested when supported.
+- Browser-storage eviction is detected instead of silently opening an empty ledger.
+
+MONEY ENGINE
+- Money is stored as integer halalas, never binary floating-point SAR amounts.
+- All money displays use exactly two decimal places.
+- Transaction-ledger model: Debt, Payment, Adjustment, Waiver/Settlement and Reversal.
+- Void replaces destructive deletion and requires a reason.
+- Corrections preserve the record ID and add an audit event.
+- Real payments are allocated to debt records (oldest first by default, or a selected debt).
+- Category balances use real allocations, not proportional estimates.
+- Payment/waiver reversals restore both creditor and debt-record balances.
+- Overpayments and cross-creditor allocations are blocked by integrity validation.
+- Historical “As of date” balances are available.
+- Effective date is stored separately from recorded timestamp to avoid timezone shifts.
+- SAR-only is explicit; multi-currency is intentionally not faked with a simple dropdown.
+
+CREDITOR / RECORD MANAGEMENT
+- Stable creditor IDs survive renames.
+- Creditor merge keeps all history under one identity.
+- Individual records can be moved to another creditor when dependencies allow it.
+- Archive/restore preserves completed or inactive creditors.
+- Creditor phone, email, tags and notes are supported.
+- Duplicate transaction warning uses same creditor + amount + near date.
+- Confirmed / Estimated / Disputed amount quality.
+- Optional verification source and verification date on debt records.
+
+PLANNING
+- Planned payment, frequency and target date remain separate from actual balances.
+- Payoff-cycle estimate from the recorded plan.
+- Recurring templates never create debt silently; the user must explicitly create each real debt.
+- Due-soon / overdue views and .ics calendar export.
+- Monthly activity summary and read-only monthly snapshots.
+
+SECURITY
+- AES-GCM ledger encryption with PBKDF2-SHA256 password key derivation.
+- Random data-encryption key wrapped by the password-derived key.
+- Optional offline recovery key.
+- Password change re-wraps the same data key without rewriting financial history.
+- Auto-lock and background-app lock.
+- Protected corrections, voids, moves, merges and destructive actions require the master password when protection is enabled.
+- Existing plaintext attachments are encrypted when protection is enabled.
+- Image attachments are re-encoded before storage to strip common EXIF/GPS metadata.
+- Attachments are encrypted under the same ledger data key when protection is enabled.
+- No third-party analytics, trackers, fonts, CDNs or remote dependencies.
+- CSP blocks remote scripts; the application is self-contained.
+
+BACKUP / RECOVERY
+- Verified backup with SHA-256 checksum.
+- Encrypted backups carry the metadata required to unlock them on another device.
+- “Test backup” opens a backup in memory without modifying current data.
+- Restore preview shows creditor count, transaction count, balance, schema and app version.
+- A rollback snapshot is created before restore.
+- Human-readable CSV export remains independent of Ledgerly itself.
+- Redacted HTML report and full HTML report.
+- Backup filenames do not contain creditor names or balances.
+- Last verified backup revision is tracked separately from financial state.
+
+AUDIT / DIAGNOSTICS
+- Hash-linked audit entries for new activity; imported legacy audit remains marked Legacy.
+- Audit history is never silently deleted; older UI entries move to the audit archive in the backup/state.
+- Diagnostics show app/schema/revision, integrity status, audit-chain status, storage use, persistence, pending operations and orphan attachments.
+- Financial Repair Mode does not silently change money. Only safe orphan attachment cleanup is automatic.
+- Provenance fields record the Ledgerly version that created/last modified transactions.
+
+PWA / UX
+- Versioned JS/CSS assets prevent an old interface from being mixed with new code.
+- Service worker has a versioned cache and an explicit “Update available — Reload” flow.
+- Network navigation is network-first with offline fallback.
+- Real 192px, 512px and maskable PWA icons.
+- Mobile safe-area support and bottom navigation.
+- Android/browser Back closes open modals before leaving the workflow.
+- Mobile keyboard-safe modal sizing.
+- Privacy has three levels: normal, hide amounts, private screen (names + amounts).
+- Print is blocked while privacy mode is active; use redacted report instead.
+- Reduced-motion support.
+- Explainable totals: dashboard totals can be opened to show exactly what contributes to them.
+- Search covers names, aliases, tags and contact details.
+- Stable sorting is deterministic.
+- Help/glossary and first-run onboarding.
+
+LEGACY MIGRATION
+- Existing Ledgerly schema 1/2 creditor/debt/payment data migrates automatically.
+- Existing AES-GCM legacy encrypted Ledgerly data asks for the old password, decrypts, migrates and re-encrypts into the new security model.
+- Exact accidental creditor “Samha's School” is removed during legacy migration; “Samha International Schools” is preserved.
+- Exact untouched Electricity seed (600 + 2,000 + 1,400) is compatibility-repaired to Saudi Energy Company 2,620.66 with the 1,010.00 payment dated 28 Sep 2026.
+- If the current data is already updated, those records are simply preserved; no duplicate update is injected.
+- ledgerly_update.html is retired and no longer edits financial data.
+
+INTENTIONALLY NOT ACTIVE
+- Cloud Sync is hidden/removed from the GitHub Pages production UI. GitHub Pages cannot run the previous Node/MySQL backend. Sync should only return after a real backend deployment and separate review.
+- Multi-currency is not enabled. FX accounting needs a dedicated design.
+- No automatic debt creation from recurring templates.
+- No hidden automatic financial repair.
+
+ROLLBACK
+- Code rollback: restore the previous application files/version.
+- Data rollback: use Ledgerly rollback snapshots or a verified backup.
+These are intentionally independent.

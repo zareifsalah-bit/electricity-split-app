@@ -1,17 +1,24 @@
-Ledgerly update — 04 Oct 2026 v2
+LEDGERLY 3.0.0 — UPLOAD INSTRUCTIONS
 
-1) Extract this ZIP.
-2) Upload/replace ALL extracted project files in your GitHub ledgerly folder.
-3) Commit the changes.
-4) Open ledgerly_update.html once in the SAME browser/device where Ledgerly data is stored.
-5) Apply the update (enter the Ledgerly master password if requested).
-6) Open index.html / Ledgerly normally.
+1) FIRST: Open your current Ledgerly and export one backup before replacing app files.
+2) Extract this ZIP.
+3) In GitHub, open:
+   zareifsalah-bit/electricity-split-app / ledgerly
+4) Upload ALL files from this extracted folder to ledgerly and commit them together to main.
+5) The GitHub commit is the deployment boundary. Do not upload half the release now and half later.
+6) Recommended cleanup after the new version is confirmed working: delete obsolete development-only files listed in FILES_TO_DELETE.txt.
+7) Wait for GitHub Pages deployment, then open:
+   https://zareifsalah-bit.github.io/electricity-split-app/ledgerly/
+8) On first load Ledgerly migrates existing data automatically. If the current ledger is encrypted, enter the existing Ledgerly password when prompted.
+9) If an Update Available banner appears, press Reload.
+10) Verify the Saudi Energy Company control figure:
+    Original / liability: SAR 2,620.66
+    Payment:              SAR 1,010.00
+    Remaining:            SAR 1,610.66
+11) Open Settings > Diagnostics and confirm Data health = Reconciled.
+12) Export a NEW Ledgerly 3.0 verified backup after migration.
 
-Included changes:
-- Monetary amounts display with 2 decimal places (halalah), without whole-riyal display rounding.
-- Original / Paid / Remaining are visible on mobile creditor cards.
-- Pressing + shows Original / Paid / Remaining plus debt records and payment history.
-- Removes only the accidental creditor named "Samha's School" and its linked records.
-- Keeps "Samha International Schools" unchanged.
-- Saudi Energy Company remains SAR 2,620.66 original, SAR 1,010.00 paid, SAR 1,610.66 remaining after updater is applied.
-- PWA cache version bumped so the updated interface refreshes correctly.
+IMPORTANT
+- ledgerly_update.html is now retired and does NOT update financial data.
+- Do not clear browser site data before the migration and new backup are verified.
+- Code rollback and data rollback are separate. A code rollback should not automatically restore older financial data.

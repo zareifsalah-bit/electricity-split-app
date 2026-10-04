@@ -1,17 +1,20 @@
 {
-  "name": "Ledgerly · Personal Debt Dashboard",
+  "id": "./",
+  "name": "Ledgerly · Private Debt Ledger",
   "short_name": "Ledgerly",
-  "description": "A private, offline-first personal debt management dashboard.",
+  "description": "A private, offline-first personal debt ledger with encrypted local storage, backups and audit history.",
   "lang": "en",
-  "dir": "ltr",
+  "dir": "auto",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f7f7f3",
-  "theme_color": "#16202a",
+  "background_color": "#f1f5f2",
+  "theme_color": "#0d2f28",
   "categories": ["finance", "productivity"],
   "icons": [
-    { "src": "./logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"./icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
   ]
 }

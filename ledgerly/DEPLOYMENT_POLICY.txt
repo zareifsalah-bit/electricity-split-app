@@ -1,0 +1,24 @@
+LEDGERLY DEPLOYMENT POLICY
+
+1. CANONICAL BASELINE
+Every future release starts from the last explicitly approved Ledgerly baseline. Never choose a ZIP merely because its filename/date looks newer.
+
+2. STAGING
+For large future releases, upload the candidate first to a separate test path/branch (recommended: /ledgerly-beta or a dedicated branch), run TEST_CHECKLIST.txt, then promote the exact tested bytes to /ledgerly.
+
+3. ONE COMMIT PER RELEASE
+Upload all production files in one GitHub commit. Versioned JS/CSS filenames and the release manifest keep a build internally consistent.
+
+4. TAG AFTER ACCEPTANCE
+After the production checklist passes, tag the accepted commit with the app version (for this build: v3.0.0). The tag becomes the code rollback point.
+
+5. BRANCH PROTECTION
+Recommended GitHub repository setting: protect main against accidental force-push/deletion. This is a repository setting, not something a static ZIP can enforce.
+
+6. TWO DIFFERENT ROLLBACKS
+Code rollback = restore an earlier Git tag/files.
+Data rollback = Ledgerly snapshot or verified backup.
+Never automatically combine the two.
+
+7. RELEASE DEFINITION OF DONE
+Build parses → golden arithmetic passes → migration test passes → mobile test passes → diagnostics reconciled → offline test passes → backup/restore test passes → user approves production.

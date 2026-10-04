@@ -1,0 +1,23 @@
+Ledgerly 3.0.0 verification — 2026-10-04
+
+STATIC / SYNTAX
+PASS JavaScript syntax: app.3.0.0.js
+PASS JavaScript syntax: crypto.3.0.0.js
+PASS JavaScript syntax: i18n.3.0.0.js
+PASS JavaScript syntax: ledger-core.3.0.0.js
+PASS JavaScript syntax: migrations.3.0.0.js
+PASS JavaScript syntax: service-worker.js
+PASS JavaScript syntax: storage.3.0.0.js
+PASS index references versioned production assets
+PASS every app module import exists
+PASS service-worker shell references existing files
+PASS PWA manifest/icon references
+PASS critical DOM anchors
+PASS known financial migration
+PASS Saudi Energy 2620.66 - 1010.00 = 1610.66
+PASS known total remaining 12182.16
+PASS duplicate school removal / correct school preservation
+PASS Arabic numeric normalization
+PASS AES-GCM password unlock
+PASS recovery-key unlock
+PASS password change key re-wrap

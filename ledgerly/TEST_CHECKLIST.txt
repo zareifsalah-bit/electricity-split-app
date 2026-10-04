@@ -1,0 +1,30 @@
+LEDGERLY 3.0.0 — RELEASE ACCEPTANCE CHECKLIST
+
+AUTOMATED / BUILD
+[ ] Every JavaScript file parses without syntax errors.
+[ ] Every asset referenced by index.html and service-worker.js exists.
+[ ] Golden arithmetic: 2620.66 - 1010.00 = 1610.66.
+[ ] Money round-trip uses integer halalas.
+[ ] Legacy current-data migration preserves Saudi Energy Company and Samha International Schools.
+[ ] Exact “Samha's School” legacy duplicate is removed only during legacy migration.
+[ ] Old Electricity 600 + 2000 + 1400 seed compatibility migration resolves to 2620.66 / 1010.00 / 1610.66.
+[ ] Reversal returns allocated debt-record remaining correctly.
+[ ] Overpayment diagnostics reject reductions above liability.
+
+MANUAL ON PHONE
+[ ] Existing data appears after upload.
+[ ] Every money display uses two decimal places.
+[ ] Saudi Energy Company shows 2,620.66 / 1,010.00 / 1,610.66.
+[ ] Expand creditor shows Original / Paid / Remaining and full ledger timeline.
+[ ] Add debt works with decimal amount and calendar dates.
+[ ] Add payment allocates correctly.
+[ ] Correction requires reason and password when encrypted.
+[ ] Void keeps the record visible but removes its effect.
+[ ] Reversal creates a separate opposite entry.
+[ ] Backup export succeeds and reports verified checksum.
+[ ] Test Backup opens backup without changing current data.
+[ ] Dark mode / privacy / private screen work.
+[ ] Settings > Diagnostics reports Reconciled.
+[ ] App works after switching phone to airplane mode.
+[ ] Android Back closes an open Ledgerly modal.
+[ ] New app update presents Update Available instead of silently serving mixed files.
