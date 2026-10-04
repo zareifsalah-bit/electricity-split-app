@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173a31">
+  <title>Ledgerly Data Update</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#13211d;background:#f3f7f5}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:
+      radial-gradient(circle at 10% 0,rgba(25,138,107,.12),transparent 30%),
+      radial-gradient(circle at 92% 8%,rgba(86,125,157,.08),transparent 28%),#f3f7f5}
+    .card{width:min(620px,100%);background:#fff;border:1px solid #dce5e2;border-radius:26px;
+      padding:28px;box-shadow:0 22px 60px rgba(22,44,36,.09)}
+    .mark{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;color:#fff;
+      background:linear-gradient(145deg,#198a6b,#173a31);font-size:23px;font-weight:900}
+    h1{font-size:28px;letter-spacing:-.045em;margin:17px 0 8px}
+    p{color:#6f817a;line-height:1.6;margin:0}
+    .summary{display:grid;gap:9px;margin:22px 0}
+    .row{display:flex;justify-content:space-between;gap:16px;padding:11px 13px;border-radius:12px;background:#f5f8f7}
+    .row span{color:#6f817a}.row strong{text-align:right}
+    .status{margin-top:18px;padding:13px 14px;border-radius:12px;background:#e6f5ef;color:#176d56;line-height:1.5}
+    .status.error{background:#fbedeb;color:#97473f}
+    .status.warn{background:#fbf2df;color:#7c5d27}
+    .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    button,a.btn{appearance:none;border:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
+      min-height:42px;padding:0 15px;border-radius:11px;font-weight:800;cursor:pointer}
+    button.primary,a.primary{background:#198a6b;color:#fff}
+    button.secondary,a.secondary{background:#eef3f1;color:#173a31;border:1px solid #dce5e2}
+    .password{display:none;margin-top:17px}
+    .password.show{display:block}
+    label{display:block;font-size:12px;font-weight:800;color:#6f817a;margin-bottom:6px}
+    input{width:100%;min-height:44px;border:1px solid #dce5e2;border-radius:11px;padding:10px 12px;font:inherit}
+    .small{font-size:11px;color:#9aa9a4;margin-top:14px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="mark">L</div>
+    <h1>Ledgerly data update</h1>
+    <p>This one-time updater changes only the requested debt data on this browser. The Ledgerly design and other creditor records stay unchanged.</p>
+
+    <div class="summary">
+      <div class="row"><span>Saudi Energy Company</span><strong>SAR 2,620.66</strong></div>
+      <div class="row"><span>Payment · 28 Sep 2026</span><strong>SAR 1,010.00</strong></div>
+      <div class="row"><span>Al-Yahya Grocery</span><strong>SAR 196.50</strong></div>
+      <div class="row"><span>Ahmed Shaath</span><strong>SAR 1,000.00</strong></div>
+      <div class="row"><span>Samha International Schools</span><strong>SAR 650.00</strong></div>
+      <div class="row"><span>Alaa Bahaa El Din</span><strong>SAR 235.00</strong></div>
+      <div class="row"><span>Malek Suleiman</span><strong>SAR 100.00</strong></div>
+    </div>
+
+    <div id="status" class="status warn">Checking the local Ledgerly data…</div>
+
+    <div id="passwordBox" class="password">
+      <label for="password">Ledgerly master password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Enter your Ledgerly password">
+      <div class="actions">
+        <button id="unlockBtn" class="primary" type="button">Unlock & apply update</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="applyBtn" class="primary" type="button" style="display:none">Apply update</button>
+      <a class="btn secondary" href="./index.html">Open Ledgerly</a>
+    </div>
+    <div class="small">The updater is idempotent: opening it again will not duplicate these records.</div>
+  </main>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'ledgerly.debt-dashboard.v1';
+  const SECURE_STORAGE_KEY = 'ledgerly.secure.v1';
+  const SECURITY_CONFIG_KEY = 'ledgerly.security.v1';
+  const UPDATE_MARKER = 'ledgerly.update.2026-10-04.v1';
+  const $ = (id) => document.getElementById(id);
+  const status = $('status');
+
+  const nowIso = () => new Date().toISOString();
+  const bytesToBase64 = (bytes) => btoa(String.fromCharCode(...bytes));
+  const base64ToBytes = (value) => Uint8Array.from(atob(value), ch => ch.charCodeAt(0));
+
+  function setStatus(message, type='ok') {
+    status.textContent = message;
+    status.className = 'status' + (type === 'error' ? ' error' : type === 'warn' ? ' warn' : '');
+  }
+
+  async function deriveKey(password, salt) {
+    const material = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      {name:'PBKDF2', salt, iterations:210000, hash:'SHA-256'},
+      material,
+      {name:'AES-GCM', length:256},
+      false,
+      ['encrypt','decrypt']
+    );
+  }
+
+  async function decryptState(envelope, key) {
+    const plain = await crypto.subtle.decrypt(
+      {name:'AES-GCM', iv:base64ToBytes(envelope.iv)},
+      key,
+      base64ToBytes(envelope.data)
+    );
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  async function encryptState(payload, key, salt) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(JSON.stringify(payload));
+    const cipher = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, encoded);
+    return {
+      version:1,
+      salt:bytesToBase64(salt),
+      iv:bytesToBase64(iv),
+      data:bytesToBase64(new Uint8Array(cipher))
+    };
+  }
+
+  function findOrCreateCreditor(state, stableId, name, timestamp) {
+    let creditor = state.creditors.find(c =>
+      c.id === stableId || String(c.name || '').trim().toLowerCase() === name.toLowerCase()
+    );
+    if (!creditor) {
+      creditor = {id:stableId, name, createdAt:timestamp, updatedAt:timestamp};
+      state.creditors.push(creditor);
+    } else {
+      creditor.name = name;
+      creditor.updatedAt = timestamp;
+    }
+    return creditor;
+  }
+
+  function upsertDebt(state, debt) {
+    const idx = state.debts.findIndex(d => d.id === debt.id);
+    if (idx >= 0) state.debts[idx] = debt;
+    else state.debts.push(debt);
+  }
+
+  function upsertPayment(state, payment) {
+    const idx = state.payments.findIndex(p => p.id === payment.id);
+    if (idx >= 0) state.payments[idx] = payment;
+    else state.payments.push(payment);
+  }
+
+  function audit(state, event, detail, creditorId=null, amount=null, timestamp=nowIso()) {
+    if (!Array.isArray(state.auditLog)) state.auditLog = [];
+    const stableKey = 'audit_update_' + event.toLowerCase().replace(/[^a-z0-9]+/g,'_') + '_' + (creditorId || 'dashboard');
+    state.auditLog = state.auditLog.filter(a => a.id !== stableKey);
+    state.auditLog.unshift({id:stableKey,event,detail,creditorId,amount,timestamp});
+    state.auditLog = state.auditLog.slice(0,100);
+  }
+
+  function applyLedgerUpdate(input) {
+    const state = JSON.parse(JSON.stringify(input));
+    if (!Array.isArray(state.creditors) || !Array.isArray(state.debts) || !Array.isArray(state.payments)) {
+      throw new Error('Ledgerly data structure was not recognized.');
+    }
+
+    const timestamp = nowIso();
+
+    // Saudi Energy Company: rename the existing Electricity creditor,
+    // replace the three original electricity debt records with one record.
+    let energy = state.creditors.find(c => c.id === 'cred_electricity') ||
+      state.creditors.find(c => String(c.name || '').trim().toLowerCase() === 'electricity') ||
+      state.creditors.find(c => String(c.name || '').trim().toLowerCase() === 'saudi energy company');
+
+    if (!energy) {
+      energy = {id:'cred_electricity',name:'Saudi Energy Company',createdAt:timestamp,updatedAt:timestamp};
+      state.creditors.push(energy);
+    }
+    energy.name = 'Saudi Energy Company';
+    energy.updatedAt = timestamp;
+
+    const oldElectricityIds = new Set(['debt_electricity_1','debt_electricity_2','debt_electricity_3','debt_saudi_energy_20261004']);
+    state.debts = state.debts.filter(d => !oldElectricityIds.has(d.id));
+
+    upsertDebt(state, {
+      id:'debt_saudi_energy_20261004',
+      creditorId:energy.id,
+      amount:2620.66,
+      category:'Bills & Utilities',
+      quality:'Confirmed',
+      description:'Consolidated utility balance',
+      notes:'',
+      dueDate:'',
+      priority:'High',
+      planAmount:0,
+      planFrequency:'Monthly',
+      createdAt:timestamp,
+      updatedAt:timestamp,
+      locked:true
+    });
+
+    upsertPayment(state, {
+      id:'payment_saudi_energy_20260928_1010',
+      creditorId:energy.id,
+      amount:1010,
+      dateTime:'2026-09-28T09:00:00+03:00',
+      method:'',
+      reference:'',
+      note:'Payment recorded for Saudi Energy Company',
+      verified:true,
+      createdAt:'2026-09-28T09:00:00+03:00',
+      updatedAt:timestamp,
+      locked:true
+    });
+
+    // Requested new creditors and debt records.
+    const grocery = findOrCreateCreditor(state,'cred_al_yahya_grocery','Al-Yahya Grocery',timestamp);
+    const ahmed = findOrCreateCreditor(state,'cred_ahmed_shaath','Ahmed Shaath',timestamp);
+    const school = findOrCreateCreditor(state,'cred_samha_international_schools','Samha International Schools',timestamp);
+    const alaa = findOrCreateCreditor(state,'cred_alaa_bahaa_el_din','Alaa Bahaa El Din',timestamp);
+    const malek = findOrCreateCreditor(state,'cred_malek_suleiman','Malek Suleiman',timestamp);
+
+    const personalDebt = (id, creditorId, amount, description) => ({
+      id, creditorId, amount, category:'Personal', quality:'Confirmed',
+      description, notes:'', dueDate:'', priority:'Medium',
+      planAmount:0, planFrequency:'Monthly',
+      createdAt:timestamp, updatedAt:timestamp, locked:true
+    });
+
+    upsertDebt(state, personalDebt('debt_al_yahya_grocery_20261004', grocery.id, 196.50, 'Grocery balance'));
+    upsertDebt(state, personalDebt('debt_ahmed_shaath_20261004', ahmed.id, 1000, 'Personal balance'));
+    upsertDebt(state, personalDebt('debt_samha_schools_20261004', school.id, 650, 'School balance'));
+    upsertDebt(state, personalDebt('debt_alaa_bahaa_20261004', alaa.id, 235, 'Personal balance'));
+    upsertDebt(state, personalDebt('debt_malek_suleiman_20261004', malek.id, 100, 'Personal balance'));
+
+    audit(state,'Debt consolidated','Electricity records consolidated into SAR 2,620.66',energy.id,2620.66,timestamp);
+    audit(state,'Payment added','Payment dated 28 Sep 2026',energy.id,1010,'2026-09-28T09:00:00+03:00');
+    audit(state,'Debt added','Al-Yahya Grocery',grocery.id,196.50,timestamp);
+    audit(state,'Debt added','Ahmed Shaath',ahmed.id,1000,timestamp);
+    audit(state,'Debt added','Samha International Schools',school.id,650,timestamp);
+    audit(state,'Debt added','Alaa Bahaa El Din',alaa.id,235,timestamp);
+    audit(state,'Debt added','Malek Suleiman',malek.id,100,timestamp);
+
+    state.lastUpdated = timestamp;
+    state.schemaVersion = 2;
+    state.undoHistory = [];
+    return state;
+  }
+
+  async function savePlain() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) throw new Error('No local Ledgerly data was found in this browser.');
+    const current = JSON.parse(raw);
+    const updated = applyLedgerUpdate(current);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(UPDATE_MARKER, nowIso());
+    return updated;
+  }
+
+  async function saveEncrypted(password) {
+    const envelope = JSON.parse(localStorage.getItem(SECURE_STORAGE_KEY) || 'null');
+    if (!envelope || !envelope.salt) throw new Error('Encrypted Ledgerly data was not found.');
+    const salt = base64ToBytes(envelope.salt);
+    const key = await deriveKey(password, salt);
+    const current = await decryptState(envelope, key);
+    const updated = applyLedgerUpdate(current);
+    const newEnvelope = await encryptState(updated, key, salt);
+    localStorage.setItem(SECURE_STORAGE_KEY, JSON.stringify(newEnvelope));
+    localStorage.setItem(UPDATE_MARKER, nowIso());
+    return updated;
+  }
+
+  function success() {
+    $('passwordBox').classList.remove('show');
+    $('applyBtn').style.display = 'none';
+    setStatus('Update applied successfully. Open Ledgerly to see the new balances and payment history.');
+  }
+
+  async function applyPlain() {
+    try {
+      setStatus('Applying the requested Ledgerly changes…','warn');
+      await savePlain();
+      success();
+    } catch (error) {
+      setStatus(error.message || 'The update could not be applied.','error');
+    }
+  }
+
+  async function applyEncrypted() {
+    const password = $('password').value;
+    if (!password) {
+      setStatus('Enter the Ledgerly master password first.','error');
+      return;
+    }
+    try {
+      setStatus('Unlocking the encrypted ledger and applying the update…','warn');
+      await saveEncrypted(password);
+      $('password').value = '';
+      success();
+    } catch (error) {
+      setStatus('Incorrect password or encrypted data could not be updated.','error');
+      $('password').select();
+    }
+  }
+
+  $('applyBtn').addEventListener('click', applyPlain);
+  $('unlockBtn').addEventListener('click', applyEncrypted);
+  $('password').addEventListener('keydown', e => { if (e.key === 'Enter') applyEncrypted(); });
+
+  try {
+    const cfg = JSON.parse(localStorage.getItem(SECURITY_CONFIG_KEY) || '{}');
+    const encrypted = Boolean(cfg.enabled && localStorage.getItem(SECURE_STORAGE_KEY));
+    if (encrypted) {
+      $('passwordBox').classList.add('show');
+      setStatus('This Ledgerly ledger is encrypted. Enter your master password to apply the update.','warn');
+    } else if (localStorage.getItem(STORAGE_KEY)) {
+      $('applyBtn').style.display = 'inline-flex';
+      setStatus('Ledgerly data found. Tap “Apply update” to make the requested changes.','warn');
+    } else {
+      setStatus('No Ledgerly data was found in this browser. Open Ledgerly once on this same device, then return here.','error');
+    }
+  } catch (error) {
+    setStatus('Could not inspect the Ledgerly local data.','error');
+  }
+})();
+</script>
+</body>
+</html>
