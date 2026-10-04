@@ -200,7 +200,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
   body.report-print-mode .report-table thead{display:table-header-group}
   body.report-print-mode .report-table tr{break-inside:avoid;page-break-inside:avoid}
   body.report-print-mode .report-section-head{break-after:avoid;page-break-after:avoid}
-  @page{size:A4 portrait;margin:10mm 10mm 11mm}
+  @page{size:A4 portrait;margin:10mm 10mm 7mm}
 }
 
 
@@ -234,6 +234,16 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
   body.report-print-mode .report-table tfoot{display:table-row-group}
   body.report-print-mode .report-vac-pill{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.report-print-mode .report-share{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* v11.2.2 · PDF two-page footer layout fix */
+@media print{
+  body.report-print-mode .report-footer{
+    margin-top:5px!important;
+    padding-top:4px!important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
 }
 
 /* v11 · Stability, integrity, backup & security */
@@ -448,7 +458,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
     </div>
   </section>
 
-  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2.1</span></div>
+  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2.2</span></div>
 </div>
 
 
@@ -545,7 +555,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
 <script>
 const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"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"};
-const APP_VERSION='11.2.1';
+const APP_VERSION='11.2.2';
 const DATA_SCHEMA_VERSION=7;
 const CURRENCY='SAR';
 const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
