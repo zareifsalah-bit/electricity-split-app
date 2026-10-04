@@ -1,4 +1,4 @@
-const CACHE = 'ledgerly-shell-v5';
+const CACHE = 'ledgerly-shell-v6-signature';
 const SHELL = ['./', './index.html', './Personal_Debt_Dashboard.html', './ledgerly_update.html', './manifest.webmanifest', './logo.svg'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
