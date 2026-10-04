@@ -1,0 +1,17 @@
+Ledgerly update — 04 Oct 2026 v2
+
+1) Extract this ZIP.
+2) Upload/replace ALL extracted project files in your GitHub ledgerly folder.
+3) Commit the changes.
+4) Open ledgerly_update.html once in the SAME browser/device where Ledgerly data is stored.
+5) Apply the update (enter the Ledgerly master password if requested).
+6) Open index.html / Ledgerly normally.
+
+Included changes:
+- Monetary amounts display with 2 decimal places (halalah), without whole-riyal display rounding.
+- Original / Paid / Remaining are visible on mobile creditor cards.
+- Pressing + shows Original / Paid / Remaining plus debt records and payment history.
+- Removes only the accidental creditor named "Samha's School" and its linked records.
+- Keeps "Samha International Schools" unchanged.
+- Saudi Energy Company remains SAR 2,620.66 original, SAR 1,010.00 paid, SAR 1,610.66 remaining after updater is applied.
+- PWA cache version bumped so the updated interface refreshes correctly.

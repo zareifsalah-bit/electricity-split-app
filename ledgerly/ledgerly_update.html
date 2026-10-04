@@ -47,6 +47,7 @@
       <div class="row"><span>Al-Yahya Grocery</span><strong>SAR 196.50</strong></div>
       <div class="row"><span>Ahmed Shaath</span><strong>SAR 1,000.00</strong></div>
       <div class="row"><span>Samha International Schools</span><strong>SAR 650.00</strong></div>
+      <div class="row"><span>Remove only Samha's School</span><strong>Yes</strong></div>
       <div class="row"><span>Alaa Bahaa El Din</span><strong>SAR 235.00</strong></div>
       <div class="row"><span>Malek Suleiman</span><strong>SAR 100.00</strong></div>
     </div>
@@ -75,7 +76,7 @@
   const STORAGE_KEY = 'ledgerly.debt-dashboard.v1';
   const SECURE_STORAGE_KEY = 'ledgerly.secure.v1';
   const SECURITY_CONFIG_KEY = 'ledgerly.security.v1';
-  const UPDATE_MARKER = 'ledgerly.update.2026-10-04.v1';
+  const UPDATE_MARKER = 'ledgerly.update.2026-10-04.v2';
   const $ = (id) => document.getElementById(id);
   const status = $('status');
 
@@ -163,6 +164,21 @@
     }
 
     const timestamp = nowIso();
+
+    // Remove only the accidental creditor named Samha's School (including curly-apostrophe spelling).
+    // Samha International Schools must remain untouched.
+    const normalizedCreditorName = (value) => String(value || '').trim().toLowerCase().replace(/[’‘`]/g, "'").replace(/\s+/g, ' ');
+    const removedSamhaIds = new Set(
+      state.creditors
+        .filter(c => normalizedCreditorName(c.name) === "samha's school")
+        .map(c => c.id)
+    );
+    if (removedSamhaIds.size) {
+      state.debts = state.debts.filter(d => !removedSamhaIds.has(d.creditorId));
+      state.payments = state.payments.filter(p => !removedSamhaIds.has(p.creditorId));
+      state.creditors = state.creditors.filter(c => !removedSamhaIds.has(c.id));
+      audit(state,'Creditor removed',"Removed accidental Samha's School record only",null,null,timestamp);
+    }
 
     // Saudi Energy Company: rename the existing Electricity creditor,
     // replace the three original electricity debt records with one record.
