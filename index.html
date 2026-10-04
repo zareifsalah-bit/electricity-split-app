@@ -205,6 +205,37 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
 
 
+/* v11.2.1 · Detailed monthly share report */
+.report-table .share-head-salah{color:#0f766e!important}
+.report-table .share-head-alaa{color:#175cd3!important}
+.report-share{display:flex;flex-direction:column;align-items:flex-end;gap:1px;padding:3px 4px;border-radius:7px}
+.report-share strong{font-size:7.8pt;color:#172235;font-variant-numeric:tabular-nums;white-space:nowrap}
+.report-share small{font-size:6.5pt;font-weight:800;white-space:nowrap}
+.report-share.salah{background:#f0fdfa;border:1px solid #ccfbf1}
+.report-share.salah small{color:#0f766e}
+.report-share.alaa{background:#eff6ff;border:1px solid #dbeafe}
+.report-share.alaa small{color:#175cd3}
+.report-share.affected{box-shadow:inset 0 0 0 1px rgba(15,118,110,.05)}
+.report-vac-meta{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.report-vac-pill{display:inline-flex;align-items:center;padding:2px 5px;border-radius:999px;font-size:5.9pt;font-weight:800;line-height:1.25;border:1px solid;white-space:nowrap}
+.report-vac-pill.salah{color:#0f766e;background:#f0fdfa;border-color:#99f6e4}
+.report-vac-pill.alaa{color:#175cd3;background:#eff6ff;border-color:#bfdbfe}
+.report-vac-pill.both{color:#6941c6;background:#f4f3ff;border-color:#d9d6fe}
+.report-split-note{margin-top:3px;color:#667085;font-size:6.1pt;font-weight:750}
+.report-payment-cell{display:flex;flex-direction:column;align-items:center;gap:3px}
+.report-payment-cell small{font-size:5.9pt;color:#667085;line-height:1.25;text-align:center;white-space:normal}
+.report-table tfoot td{background:#f4f7fa!important;border-top:1.5px solid #cfd8e3!important;border-bottom:0!important;font-weight:850;color:#172235}
+.report-table tfoot .total-label{text-align:left!important}
+.report-table tfoot .total-pay{text-align:center!important;font-size:6.4pt;color:#475467}
+.report-share-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px;padding:7px 9px;border:1px solid #e0e7ef;border-radius:8px;background:#fbfcfe;color:#66758a;font-size:6.8pt}
+.report-share-legend strong{color:#344054}
+.report-share-legend .note{flex-basis:100%;font-size:6.5pt;color:#7a8798}
+@media print{
+  body.report-print-mode .report-table tfoot{display:table-row-group}
+  body.report-print-mode .report-vac-pill{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.report-print-mode .report-share{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 /* v11 · Stability, integrity, backup & security */
 .status-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
 .app-status{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025);font-size:11px;color:var(--muted)}
@@ -417,7 +448,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
     </div>
   </section>
 
-  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2</span></div>
+  <div class="footer">Chrome/PWA dashboard · Bills, payments and attachments are encrypted locally · Saved financial records are password-protected. · <span class="footer-version">App v11.2.1</span></div>
 </div>
 
 
@@ -514,7 +545,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
 
 <script>
 const SEED_ENCRYPTED = {"salt":"ho+Bsl9LwjVdOkrJyXp9xw==","iv":"tycFqRII6HCvQzsU","ct":"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"};
-const APP_VERSION='11.2';
+const APP_VERSION='11.2.1';
 const DATA_SCHEMA_VERSION=7;
 const CURRENCY='SAR';
 const ENCRYPTED_STATE_KEY='electricitySplitEncryptedStateV1';
@@ -1233,6 +1264,38 @@ function reportStatusBadge(allocation){
   return `<span class="status-badge status-${st.key}">${st.label}</span>`;
 }
 function reportNumber(cents){return fromCents(cents).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function billVacationBreakdown(b){
+  const days=daysInclusive(b.start,b.end);
+  let salahOnly=0,alaaOnly=0,both=0,normal=0;
+  for(let i=0;i<days;i++){
+    const day=addDays(b.start,i);
+    const sv=isOnVacation('Salah',day), av=isOnVacation('Alaa',day);
+    if(sv&&av) both++;
+    else if(sv) salahOnly++;
+    else if(av) alaaOnly++;
+    else normal++;
+  }
+  return {days,salahOnly,alaaOnly,both,normal,affected:(salahOnly+alaaOnly+both)>0,adjusted:salahOnly!==alaaOnly};
+}
+function reportVacationBadges(b){
+  const d=billVacationBreakdown(b);
+  if(!d.affected) return '';
+  const label=(kind,count)=>{
+    if(!count) return '';
+    const full=count===d.days;
+    if(kind==='salah') return `<span class="report-vac-pill salah">Salah away · ${full?'Full cycle':count+'d'}</span>`;
+    if(kind==='alaa') return `<span class="report-vac-pill alaa">Alaa away · ${full?'Full cycle':count+'d'}</span>`;
+    return `<span class="report-vac-pill both">Both away · ${full?'Full cycle':count+'d'}</span>`;
+  };
+  return `<div class="report-vac-meta">${label('salah',d.salahOnly)}${label('alaa',d.alaaOnly)}${label('both',d.both)}</div><div class="report-split-note">${d.adjusted?'Vacation-adjusted split':'Vacation activity · split remains 50/50'}</div>`;
+}
+function reportShareCell(cents,totalC,person,affected){
+  const pct=totalC?cents/totalC*100:50;
+  return `<div class="report-share ${person.toLowerCase()} ${affected?'affected':''}"><strong>${reportNumber(cents)}</strong><small>${pct.toFixed(1)}%</small></div>`;
+}
+function reportPaymentCell(x){
+  return `<div class="report-payment-cell">${reportStatusBadge(x)}<small>Paid ${reportNumber(x.overallPaid)} · Remaining ${reportNumber(x.overallRemaining)}</small></div>`;
+}
 function generatePDFReport(){
   const from=document.getElementById('reportFromMonth').value;
   const to=document.getElementById('reportToMonth').value;
@@ -1266,9 +1329,30 @@ function generatePDFReport(){
   const reportRef=`ESR-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
   const ledger=paymentLedger();
   const settlement=ledger.interDebt>0?`${ledger.debtor} owes ${ledger.creditor} ${money(fromCents(ledger.interDebt))}`:'No internal settlement currently due';
+  const reportIntegrityErrors=[];
+  selected.forEach(b=>{
+    const x=alloc.byBill.get(String(b.id));
+    if(!x){reportIntegrityErrors.push(`${b.label}: allocation missing`);return;}
+    if(x.sShare+x.aShare!==x.total) reportIntegrityErrors.push(`${b.label}: person shares do not equal bill total`);
+    if(x.overallPaid+x.overallRemaining!==x.total) reportIntegrityErrors.push(`${b.label}: payment allocation does not reconcile`);
+  });
+  if(sShare+aShare!==total) reportIntegrityErrors.push('Selected report totals do not reconcile between Salah, Alaa and total bills.');
+  if(reportIntegrityErrors.length){
+    alert('Report integrity check failed. PDF was not generated.\n\n'+reportIntegrityErrors.join('\n'));
+    return;
+  }
+
   const billRows=selected.map(b=>{
     const x=alloc.byBill.get(String(b.id));
-    return `<tr><td class="bill-month">${reportMonthLabel(billMonthKey(b))}</td><td class="period">${reportDateFmt(b.start)} - ${reportDateFmt(b.end)}</td><td class="num">${reportNumber(x.total)}</td><td class="num">${reportNumber(x.overallPaid)}</td><td class="num">${reportNumber(x.overallRemaining)}</td><td class="status-col">${reportStatusBadge(x)}</td></tr>`;
+    const bd=billVacationBreakdown(b);
+    return `<tr>
+      <td class="bill-month">${reportMonthLabel(billMonthKey(b))}</td>
+      <td class="period">${reportDateFmt(b.start)} - ${reportDateFmt(b.end)}${reportVacationBadges(b)}</td>
+      <td class="num">${reportNumber(x.total)}</td>
+      <td class="num">${reportShareCell(x.sShare,x.total,'Salah',bd.affected)}</td>
+      <td class="num">${reportShareCell(x.aShare,x.total,'Alaa',bd.affected)}</td>
+      <td class="status-col">${reportPaymentCell(x)}</td>
+    </tr>`;
   }).join('');
 
   const html=`<div class="report-sheet">
@@ -1290,8 +1374,9 @@ function generatePDFReport(){
 
     <section class="report-section">
       <div class="report-section-head"><h2>Monthly Billing Ledger</h2><p>Rows newest first · FIFO calculations oldest first · Amounts in SAR</p></div>
-      <table class="report-table"><colgroup><col style="width:17%"><col style="width:28%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:15%"></colgroup><thead><tr><th>Bill Month</th><th>Billing Period</th><th style="text-align:right">Total</th><th style="text-align:right">Paid</th><th style="text-align:right">Remaining</th><th style="text-align:center">Status</th></tr></thead><tbody>${billRows}</tbody></table>
+      <table class="report-table"><colgroup><col style="width:11%"><col style="width:27%"><col style="width:11%"><col style="width:14%"><col style="width:14%"><col style="width:23%"></colgroup><thead><tr><th>Bill Month</th><th>Billing Period / Vacation</th><th style="text-align:right">Total</th><th class="share-head-salah" style="text-align:right">Salah Share</th><th class="share-head-alaa" style="text-align:right">Alaa Share</th><th style="text-align:center">Payment Status</th></tr></thead><tbody>${billRows}</tbody><tfoot><tr><td colspan="2" class="total-label">Selected Period Total</td><td class="num">${reportNumber(total)}</td><td class="num">${reportNumber(sShare)}</td><td class="num">${reportNumber(aShare)}</td><td class="total-pay">Paid ${reportNumber(paid)} · Remaining ${reportNumber(remaining)}</td></tr></tfoot></table>
       <div class="report-status-legend"><strong>Payment status</strong><span class="legend-pair"><span class="legend-badge paid">Paid</span><span>Fully settled by FIFO</span></span><span class="legend-pair"><span class="legend-badge partial">Partially Paid</span><span>Partially settled</span></span><span class="legend-pair"><span class="legend-badge unpaid">Unpaid</span><span>No FIFO payment allocated</span></span></div>
+      <div class="report-share-legend"><strong>Vacation detail</strong><span class="report-vac-pill salah">Salah away</span><span class="report-vac-pill alaa">Alaa away</span><span class="report-vac-pill both">Both away</span><span class="note">Both-away days remain shared 50/50. Share percentages are calculated from the final rounded SAR amounts; minor SAR 0.01 differences may result from cent rounding.</span></div>
     </section>
 
     <section class="report-section">
@@ -1333,7 +1418,7 @@ function generatePDFReport(){
       <div class="report-method"><strong>FIFO methodology:</strong> active payments are applied to the oldest recorded bill obligations first. The bill payment status reflects settlement with the electricity provider; each person's FIFO allocation is tracked separately against that person's vacation-adjusted share for internal settlement. Status labels are <strong>Paid</strong>, <strong>Partially Paid</strong>, and <strong>Unpaid</strong>.</div>
     </section>
 
-    <footer class="report-footer"><span>Electricity Split · FIFO financial settlement report · Generated locally from encrypted dashboard data</span><span class="report-ref">${reportRef}</span></footer>
+    <footer class="report-footer"><span>Electricity Split · FIFO financial settlement report · Generated locally from encrypted dashboard data · App v${APP_VERSION}</span><span class="report-ref">${reportRef}</span></footer>
   </div>`;
   document.getElementById('reportPrintArea').innerHTML=html;
   closeReportModal();
