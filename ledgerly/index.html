@@ -1,122 +1,37 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0d2f28" id="themeColorMeta">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ledgerly">
-  <meta name="description" content="Ledgerly — a private, offline-first personal debt ledger.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'">
-  <title>Ledgerly · Private Debt Ledger</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon-192.png" sizes="192x192">
-  <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./styles.3.1.0.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="refresh" content="1;url=https://ledgerly-salah.github.io/ledgerly-app/">
+  <title>Ledgerly moved</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#081713;color:#eef7f3;font:16px system-ui,-apple-system,sans-serif}
+    main{max-width:520px;padding:32px;text-align:center}
+    a{color:#63d2ae}
+  </style>
 </head>
 <body>
-  <div id="updateBanner" class="update-banner" hidden><span>Ledgerly update available.</span><button id="reloadUpdateBtn" type="button">Reload</button></div>
-  <div id="app" class="app" hidden>
-    <header class="topbar shell" id="top">
-      <a class="brand" href="#top" aria-label="Ledgerly home">
-        <span class="brand-mark"><img src="./logo.svg" alt=""></span>
-        <span class="brand-copy"><strong>ledgerly</strong><small data-i18n="tag">private debt clarity</small></span>
-      </a>
-      <nav class="top-nav" aria-label="Primary navigation">
-        <a href="#overview" data-i18n="home">Home</a><a href="#creditorsSection" data-i18n="creditors">Creditors</a><a href="#activitySection" data-i18n="activity">Activity</a>
-      </nav>
-      <div class="top-actions">
-        <button class="icon-btn" id="privacyBtn" type="button" title="Privacy" aria-label="Privacy">◐</button>
-        <button class="icon-btn" id="themeBtn" type="button" title="Theme" aria-label="Theme">☾</button>
-        <button class="icon-btn" id="settingsBtn" type="button" title="Settings" aria-label="Settings">☰</button>
-        <button class="btn btn-soft desktop-add" id="addPaymentBtn" type="button">+ Payment</button><button class="btn btn-primary desktop-add" id="addDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button>
-      </div>
-    </header>
-
-    <main class="shell">
-      <section class="hero" id="overview">
-        <div class="hero-main">
-          <div class="hero-kicker"><span class="status-dot" id="connectivityDot"></span><span id="connectivityLabel" data-i18n="online">Online</span><span class="sep">·</span><span id="versionLabel">v3.1.0</span></div>
-          <span class="eyebrow">Private · local-first · reconciled</span>
-          <h1>Debt clarity without the noise.</h1>
-          <p>One protected ledger for every creditor, every debt record and every real payment.</p>
-          <div class="hero-actions"><button class="btn btn-primary" id="heroAddPaymentBtn" type="button">+ Add payment</button><button class="btn btn-ghost-on-dark" id="heroAddDebtBtn" type="button">+ <span data-i18n="addDebt">Add debt</span></button><button class="btn btn-ghost-on-dark" id="explainTotalBtn" type="button" data-i18n="explainTotal">Explain total</button></div>
-        </div>
-        <button class="balance-card" id="balanceCard" type="button" aria-label="Explain total remaining">
-          <div class="balance-head"><span data-i18n="totalRemaining">Total remaining</span><span class="health-pill" id="healthPill">✓ Reconciled</span></div>
-          <strong class="balance-number sensitive" id="totalRemaining">SAR 0.00</strong>
-          <div class="balance-detail"><span><b id="totalOriginal" class="sensitive">SAR 0.00</b><small data-i18n="original">Original</small></span><span><b id="totalPaid" class="sensitive paid">SAR 0.00</b><small data-i18n="paid">Paid</small></span></div>
-          <div class="progress"><i id="overallProgress"></i></div>
-        </button>
-      </section>
-
-      <section class="kpi-grid" aria-label="Key metrics">
-        <button class="kpi" data-kpi="remaining"><small data-i18n="totalRemaining">Total remaining</small><strong id="kpiRemaining" class="sensitive">SAR 0.00</strong></button>
-        <button class="kpi"><small data-i18n="totalPaid">Total paid</small><strong id="kpiPaid" class="sensitive paid">SAR 0.00</strong></button>
-        <button class="kpi"><small data-i18n="activeCreditors">Active creditors</small><strong id="kpiActive">0</strong></button>
-        <button class="kpi"><small data-i18n="progress">Progress</small><strong id="kpiProgress">0%</strong></button>
-      </section>
-
-      <section class="next-action" id="nextActionPanel">
-        <span class="next-icon">✦</span><div><small class="eyebrow" data-i18n="nextAction">Your next best action</small><h2 id="nextActionTitle">Build your first money move.</h2><p id="nextActionText">Add a debt with a due date and a payment plan.</p></div><button class="btn btn-primary" id="nextActionBtn" type="button">Review</button>
-      </section>
-
-      <div class="section-title"><div><h2 data-i18n="signal">Signal, not noise.</h2><p>Actual balances first. Plans stay clearly separate.</p></div><button class="btn btn-soft" id="toggleInsightsBtn" type="button" data-i18n="moreInsights">More insights</button></div>
-      <section class="insights" id="insightsSection" hidden>
-        <article class="panel"><div class="panel-head"><div><h3>Payment progress</h3><p>Actual reductions only</p></div><strong id="ringPercent">0%</strong></div><div class="ring-wrap"><div class="ring" id="progressRing"><span id="ringCenter">0%</span></div><div class="legend"><div><i class="dot paid-dot"></i><span>Paid / settled</span><b id="legendPaid" class="sensitive">SAR 0.00</b></div><div><i class="dot remain-dot"></i><span>Remaining</span><b id="legendRemaining" class="sensitive">SAR 0.00</b></div></div></div></article>
-        <article class="panel"><div class="panel-head"><div><h3 data-i18n="categoryBalance">Balance by category</h3><p>Based on real allocations</p></div></div><div id="categoryChart" class="bars"></div></article>
-        <article class="panel"><div class="panel-head"><div><h3 data-i18n="topOutstanding">Top outstanding</h3><p>Largest current balances</p></div></div><div id="topOutstanding" class="top-list"></div></article>
-        <article class="panel wide"><div class="panel-head"><div><h3 data-i18n="monthlyTrend">12-month trend</h3><p>Historical remaining balance</p></div><button class="btn btn-small btn-soft" id="asOfBtn" type="button" data-i18n="asOf">As of date</button></div><div id="trendChart" class="trend"></div></article>
-      </section>
-
-      <div class="section-title" id="creditorsSection"><div><h2 data-i18n="moneyMap">Your money map.</h2><p>Every creditor expands into a complete mini-ledger.</p></div><span class="local-pill">● Local ledger</span></div>
-      <section class="toolbar">
-        <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Search creditor…" autocomplete="off"></label>
-        <select id="sortSelect" aria-label="Sort creditors"><option value="remaining">Highest remaining</option><option value="name">Name A–Z</option><option value="updated">Last updated</option><option value="due">Due soon</option></select>
-        <button class="btn btn-soft" id="filterBtn" type="button">Filters</button>
-      </section>
-      <div class="chips" id="filterChips"></div>
-      <section id="creditorList" class="creditor-list"></section>
-      <div id="emptyState" class="empty" hidden><div class="empty-icon">◎</div><h3 data-i18n="emptyLedger">No creditors yet.</h3><p data-i18n="emptyLedgerText">Add your first debt to start a private, reconciled ledger.</p><button class="btn btn-primary" id="emptyAddDebtBtn" type="button">+ Add debt</button></div>
-
-      <section class="activity-grid" id="activitySection">
-        <article class="panel"><div class="panel-head"><div><h3 data-i18n="monthlySummary">Monthly activity</h3><p id="monthSummaryLabel">This month</p></div><button class="btn btn-small btn-soft" id="closeMonthBtn" type="button" data-i18n="monthlyClose">Close month</button></div><div id="monthSummary" class="month-summary"></div></article>
-        <article class="panel"><div class="panel-head"><div><h3 data-i18n="activity">Activity</h3><p>Tamper-evident local audit trail</p></div><button class="btn btn-small btn-soft" id="auditBtn" type="button">View all</button></div><div id="activityList" class="activity-list"></div></article>
-      </section>
-    </main>
-
-    <footer class="shell footer"><span>Ledgerly · <b id="footerVersion">v3.1.0</b></span><span data-i18n="noForecasts">Actual records are separate from plans and forecasts.</span></footer>
-
-    <nav class="mobile-nav" aria-label="Mobile navigation">
-      <a href="#overview"><span>⌂</span><small data-i18n="home">Home</small></a><a href="#creditorsSection"><span>◎</span><small data-i18n="creditors">Creditors</small></a><a href="#activitySection"><span>⌁</span><small data-i18n="activity">Activity</small></a><button id="mobileAddPaymentBtn" type="button"><span>＋</span><small>Payment</small></button><button id="mobileAddDebtBtn" type="button"><span>＋</span><small>Debt</small></button>
-    </nav>
-  </div>
-
-  <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
-  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
-
-  <div class="lock-screen" id="setupScreen" hidden>
-    <div class="lock-card"><img src="./logo.svg" alt="" class="lock-logo"><span class="eyebrow">Required protection</span><h1>Protect Ledgerly before continuing</h1><p>A master password is mandatory for the app and website. It will also be required before correcting or voiding debts and payments.</p>
-      <form id="mandatorySecurityForm"><label>Master password<input id="setupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required></label><label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label><label class="setup-check"><input name="recovery" type="checkbox" checked> Create an offline recovery key</label><div id="setupError" class="form-error"></div><button class="btn btn-primary full" type="submit">Encrypt & open Ledgerly</button></form>
-      <div class="notice" style="margin-top:12px">Keep the password and recovery key safe. Ledgerly cannot read encrypted data without one of them.</div>
-    </div>
-  </div>
-
-  <div class="lock-screen" id="lockScreen" hidden>
-    <div class="lock-card"><img src="./logo.svg" alt="" class="lock-logo"><span class="eyebrow">Encrypted local ledger</span><h1>Ledgerly is locked</h1><p>Enter your master password, or use the recovery key you saved when protection was enabled.</p>
-      <form id="unlockForm"><label>Master password<input id="unlockPassword" type="password" autocomplete="current-password" minlength="8"></label><button class="btn btn-primary full" type="submit">Unlock securely</button></form>
-      <button class="text-btn" id="useRecoveryBtn" type="button">Use recovery key instead</button><div id="unlockError" class="form-error"></div>
-    </div>
-  </div>
-
-  <div class="safe-screen" id="safeScreen" hidden>
-    <div class="lock-card danger-card"><span class="eyebrow" data-i18n="safeMode">Safe mode</span><h1>Ledger editing is paused.</h1><p id="safeModeMessage" data-i18n="safeModeText">Ledgerly detected a data integrity or version problem. Editing is disabled until the ledger is recovered.</p><div class="stack-actions"><button class="btn btn-primary" id="safeRestoreBtn" type="button">Restore verified backup</button><button class="btn btn-soft" id="safeBackupBtn" type="button" data-i18n="emergencyBackup">Emergency backup</button><button class="btn btn-soft" id="safeDiagnosticsBtn" type="button" data-i18n="diagnostics">Diagnostics</button></div></div>
-  </div>
-
-  <input id="restoreFileInput" type="file" accept="application/json,.json" hidden>
-  <input id="attachmentFileInput" type="file" accept="image/*,application/pdf" hidden>
-  <script type="module" src="./app.3.1.0.js"></script>
+  <main>
+    <h1>Ledgerly has moved</h1>
+    <p>The active Ledgerly app now lives in its own repository and web-app origin.</p>
+    <p><a href="https://ledgerly-salah.github.io/ledgerly-app/">Open Ledgerly</a></p>
+  </main>
+  <script>
+    (async()=>{
+      try{
+        if('serviceWorker' in navigator){
+          const regs=await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.filter(r=>r.scope.includes('/electricity-split-app/ledgerly/')).map(r=>r.unregister()));
+        }
+        if('caches' in window){
+          const keys=await caches.keys();
+          await Promise.all(keys.filter(k=>k.startsWith('ledgerly-shell-')).map(k=>caches.delete(k)));
+        }
+      }catch(e){}
+      location.replace('https://ledgerly-salah.github.io/ledgerly-app/');
+    })();
+  </script>
 </body>
 </html>
